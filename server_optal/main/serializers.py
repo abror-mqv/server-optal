@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import SubCategory, Product, Category
+from .models import SubCategory, Factory, Product, Category, ColorVariation
 
 
 class SubcatsSerializer(serializers.ModelSerializer):
@@ -34,3 +34,24 @@ class CategorySerializer(serializers.ModelSerializer):
         fields = ['id', 'cat_name', 'subcategories']
 
 
+class ColorVariationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ColorVariation
+        fields = ['color_name', 'color_code', 'image', "product"]
+
+
+class ProductSerializer(serializers.ModelSerializer):
+    # Добавляем поле color_variations как вложенный сериализатор
+    color_variations = ColorVariationSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = Product
+        fields = ['id', 'name', 'price', 'sizes', 'description',
+                  'father', 'manufacter', 'color_variations']
+
+
+class FactorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Factory
+        fields = ['username', 'first_name',
+                  'factory_name', "factory_description"]

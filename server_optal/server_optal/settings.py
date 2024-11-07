@@ -28,6 +28,8 @@ INSTALLED_APPS = [
     'colorfield',
 ]
 
+ALLOWED_HOSTS = ['192.168.133.88', 'localhost', '127.0.0.1', "localhost:3000"]
+
 AUTH_USER_MODEL = 'main.Factory'
 
 REST_FRAMEWORK = {
@@ -36,6 +38,12 @@ REST_FRAMEWORK = {
     ],
     'DEFAULT_PARSER_CLASSES': [
         'rest_framework.parsers.JSONParser',
+    ],
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.TokenAuthentication',
+    ],
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticated',
     ],
 }
 
