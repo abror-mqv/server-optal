@@ -50,8 +50,26 @@ class ProductSerializer(serializers.ModelSerializer):
                   'father', 'manufacter', 'color_variations']
 
 
+
 class FactorySerializer(serializers.ModelSerializer):
     class Meta:
         model = Factory
         fields = ['username', 'first_name',
                   'factory_name', "factory_description"]
+
+
+class SubCategoryWithProductsSerializer(serializers.ModelSerializer):
+    products = ProductSerializer(source='product_set', many=True)
+
+    class Meta:
+        model = SubCategory
+        fields = ['id', 'subcat_name', 'products']
+
+
+class CategoryWithProductsSerializer(serializers.ModelSerializer):
+    subcategories = SubCategoryWithProductsSerializer(many=True)
+
+    class Meta:
+        model = Category
+        fields = ['id', 'cat_name', 'subcategories']
+

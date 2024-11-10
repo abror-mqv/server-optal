@@ -4,7 +4,7 @@ from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render
 from django.core.serializers import serialize
 from .models import Product, Category, SubCategory, Factory, ColorVariation
-from .serializers import CategorySerializer, ProductSerializer, ColorVariationSerializer, FactorySerializer
+from .serializers import CategorySerializer, ProductSerializer, ColorVariationSerializer, FactorySerializer, CategoryWithProductsSerializer, SubCategoryWithProductsSerializer
 
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
@@ -23,6 +23,8 @@ from rest_framework import viewsets
 from rest_framework.decorators import action
 
 from rest_framework.permissions import AllowAny
+
+from rest_framework.generics import RetrieveDestroyAPIView
 
 
 class CatApiView(APIView):
@@ -120,3 +122,75 @@ class ProductDetailView(generics.RetrieveAPIView):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
     permission_classes = [AllowAny]
+    lookup_field = 'pk'
+
+
+class ProductDeleteView(RetrieveDestroyAPIView):
+    queryset = Product.objects.all()
+    serializer_class = ProductSerializer
+    permission_classes = [IsAuthenticated]
+    lookup_field = 'pk'
+
+    def delete(self, request, *args, **kwargs):
+        return super().delete(request, *args, **kwargs)
+
+
+class UpdateFactoryView(APIView):
+    def put(self, request, *args, **kwargs):
+        factory = request.user
+        serializer = FactorySerializer(
+            factory, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class CategoryListView(APIView):
+    def get(self, request):
+        categories = Category.objects.prefetch_related('subcategories').all()
+        serializer = CategorySerializer(categories, many=True)
+        return Response(serializer.data)
+
+
+class ProductsBySubCategoryView(APIView):
+    def get(self, request, subcat_id):
+        try:
+            products = Product.objects.filter(father__id=subcat_id)
+            serializer = ProductSerializer(products, many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except SubCategory.DoesNotExist:
+            return Response({"error": "Подкатегория не найдена"}, status=status.HTTP_404_NOT_FOUND)
+
+
+class CategoryDetailView(APIView):
+    permission_classes = [AllowAny]
+
+    def get(self, request, category_id):
+        try:
+            category = Category.objects.get(id=category_id)
+            serializer = CategoryWithProductsSerializer(category)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except Category.DoesNotExist:
+            return Response({"error": "Категория не найдена"}, status=status.HTTP_404_NOT_FOUND)
+
+
+class SubCategoryDetailView(APIView):
+    permission_classes = [AllowAny]
+
+    def get(self, request, subcategory_id):
+        try:
+            subcategory = SubCategory.objects.get(id=subcategory_id)
+            serializer = SubCategoryWithProductsSerializer(subcategory)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except SubCategory.DoesNotExist:
+            return Response({"error": "SubКатегория не найдена"}, status=status.HTTP_404_NOT_FOUND)
+
+
+class LatestProductsView(APIView):
+    permission_classes = [AllowAny]
+
+    def get(self, request):
+        products = Product.objects.all().order_by('-created_at')  # Order by newest
+        serializer = ProductSerializer(products, many=True)
+        return Response(serializer.data)

@@ -2,10 +2,12 @@ from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, AbstractUser, UserManager
 # Create your models here.
 
+from django.utils import timezone
+
 
 class Factory(AbstractUser):
     factory_name = models.CharField(max_length=255, verbose_name="Описание")
-    
+
     factory_description = models.TextField(
         verbose_name="Описание", null=True, blank=True)
 
@@ -39,6 +41,8 @@ class Product(models.Model):
     father = models.ForeignKey(SubCategory, on_delete=models.CASCADE)
     manufacter = models.ForeignKey(Factory, on_delete=models.CASCADE)
 
+    created_at = models.DateTimeField(auto_now_add=True)
+    
     def __str__(self):
         return self.name
 
