@@ -29,7 +29,7 @@ INSTALLED_APPS = [
 ]
 
 ALLOWED_HOSTS = ['192.168.133.88', 'localhost',
-                 '127.0.0.1', "localhost:3000", "5.59.233.26", "imacode.ru", "192.168.243.88", "optal.ru"]
+                 '127.0.0.1', "localhost:3000", "5.59.233.26", "imacode.ru", "192.168.243.88", "optal.ru", "imacode.ru"]
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
 ]
