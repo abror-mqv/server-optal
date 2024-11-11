@@ -32,6 +32,8 @@ ALLOWED_HOSTS = ['192.168.133.88', 'localhost',
                  '127.0.0.1', "localhost:3000", "5.59.233.26", "imacode.ru", "192.168.243.88", "optal.ru", "imacode.ru"]
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
+    "http://5.59.233.26",
+    "http://optal.ru"
 ]
 CORS_ALLOW_HEADERS = [
     'authorization',
@@ -129,11 +131,6 @@ USE_I18N = True
 USE_TZ = True
 
 
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/4.2/howto/static-files/
-
-# STATIC_URL = 'static/'
-
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
@@ -144,7 +141,5 @@ STATICFILES_DIRS = [
     '/home/back/server-optal/server_optal/static_dev'
 ]
 
-# Default primary key field type
-# https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
