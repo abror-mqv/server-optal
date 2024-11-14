@@ -33,7 +33,10 @@ ALLOWED_HOSTS = ['192.168.133.88', 'localhost',
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
     "http://5.59.233.26",
-    "http://optal.ru"
+    "http://optal.ru",
+    "https://localhost:3000",
+    "https://5.59.233.26",
+    "https://optal.ru"
 ]
 
 CORS_ALLOW_ALL_ORIGINS = True
