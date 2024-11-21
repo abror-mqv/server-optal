@@ -24,6 +24,8 @@ INSTALLED_APPS = [
     'rest_framework.authtoken',
     'django.contrib.staticfiles',
     'main',
+    'factories',
+    'customers',
     'rest_framework',
     'colorfield',
 ]
@@ -41,16 +43,16 @@ CORS_ALLOWED_ORIGINS = [
 
 CORS_ALLOW_ALL_ORIGINS = True
 
-SESSION_COOKIE_SECURE = True
-CSRF_COOKIE_SECURE = True
-SECURE_SSL_REDIRECT = True
+# SESSION_COOKIE_SECURE = True
+# CSRF_COOKIE_SECURE = True
+# SECURE_SSL_REDIRECT = True
 
 CORS_ALLOW_HEADERS = [
     'authorization',
     'content-type',
     'x-csrftoken',
 ]
-AUTH_USER_MODEL = 'main.Factory'
+AUTH_USER_MODEL = 'factories.Factory'
 
 REST_FRAMEWORK = {
     'DEFAULT_RENDERER_CLASSES': [
