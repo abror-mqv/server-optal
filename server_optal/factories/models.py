@@ -7,10 +7,24 @@ from django.utils import timezone
 
 class Factory(AbstractUser):
     factory_name = models.CharField(max_length=255, verbose_name="Описание")
+    first_name = models.CharField(max_length=255, verbose_name="Имя цеховика")
     avatar = models.ImageField(
         upload_to='avatars/', null=True, blank=True, verbose_name="Аватарка")
     factory_description = models.TextField(
         verbose_name="Описание", null=True, blank=True)
+
+    groups = models.ManyToManyField(
+        'auth.Group',
+        related_name='factory_groups',  # Уникальное имя
+        blank=True,
+        verbose_name='groups'
+    )
+    user_permissions = models.ManyToManyField(
+        'auth.Permission',
+        related_name='factory_user_permissions',  # Уникальное имя
+        blank=True,
+        verbose_name='user permissions'
+    )
 
     def __str__(self):
         return self.username
