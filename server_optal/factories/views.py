@@ -84,7 +84,7 @@ class CreateProductView(APIView):
 
     def post(self, request):
         product_data = request.data
-        product_data['manufacter'] = request.user.id
+        product_data['manufacter'] = FactoryProfile.objects.get(user=request.user)
         serializer = ProductSerializer(data=product_data)
         if serializer.is_valid():
             serializer.save()
@@ -140,7 +140,7 @@ class ProductDeleteView(RetrieveDestroyAPIView):
 
 class UpdateFactoryView(APIView):
     def put(self, request, *args, **kwargs):
-        factory = request.user
+        factory = FactoryProfile.objects.get(user=request.user)
         serializer = FactorySerializer(
             factory, data=request.data, partial=True)
         if serializer.is_valid():
@@ -203,7 +203,7 @@ class UpdateAvatarView(APIView):
     permission_classes = [IsAuthenticated]
 
     def patch(self, request):
-        user = request.user  # текущий пользователь
+        user = FactoryProfile.objects.get(user=request.user) # текущий пользователь
         serializer = FactoryAvatarSerializer(
             user, data=request.data, partial=True)
         if serializer.is_valid():
