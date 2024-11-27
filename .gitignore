@@ -9,3 +9,6 @@
 __pycache__/
 *.log
 /venv/
+
+*/migrations/*.py
+!*/migrations/__init__.py
