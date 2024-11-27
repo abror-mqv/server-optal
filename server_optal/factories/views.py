@@ -84,7 +84,9 @@ class CreateProductView(APIView):
 
     def post(self, request):
         product_data = request.data
-        product_data['manufacter'] = FactoryProfile.objects.get(user=request.user)
+        product_data['manufacter'] = FactoryProfile.objects.get(
+            user=request.user).id
+        # print(str(product_data["manufacter"].id))
         serializer = ProductSerializer(data=product_data)
         if serializer.is_valid():
             serializer.save()
@@ -203,7 +205,8 @@ class UpdateAvatarView(APIView):
     permission_classes = [IsAuthenticated]
 
     def patch(self, request):
-        user = FactoryProfile.objects.get(user=request.user) # текущий пользователь
+        user = FactoryProfile.objects.get(
+            user=request.user)  # текущий пользователь
         serializer = FactoryAvatarSerializer(
             user, data=request.data, partial=True)
         if serializer.is_valid():
