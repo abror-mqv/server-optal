@@ -1,5 +1,7 @@
 from rest_framework import serializers
-from .models import SubCategory, Factory, Product, Category, ColorVariation
+from .models import SubCategory, Product, Category, ColorVariation
+from main.models import User
+from .models import FactoryProfile
 
 
 class SubcatsSerializer(serializers.ModelSerializer):
@@ -50,11 +52,31 @@ class ProductSerializer(serializers.ModelSerializer):
                   'father', 'manufacter', 'color_variations']
 
 
+class FactoryRegistrationSerializer(serializers.ModelSerializer):
+    factory_name = serializers.CharField()
+
+    class Meta:
+        model = User
+        fields = ('username', 'password', 'first_name', 'factory_name')
+        extra_kwargs = {'password': {'write_only': True}}
+
+    def create(self, validated_data):
+        factory_name = validated_data.pop('factory_name')
+        user = User.objects.create_user(**validated_data)
+        FactoryProfile.objects.create(user=user, factory_name=factory_name)
+        return user
+
+class FactoryProfileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = FactoryProfile
+        fields = ['user', 'factory_name', 'factory_description']
+
+        
 class FactorySerializer(serializers.ModelSerializer):
     class Meta:
-        model = Factory
-        fields = ['username', 'first_name',
-                  'factory_name', "factory_description"]
+        model = FactoryProfile
+        fields = ['username', 'first_name', 'factory_name', 'date_joined']
+        read_only_fields = ['date_joined']
 
 
 class SubCategoryWithProductsSerializer(serializers.ModelSerializer):
@@ -75,5 +97,5 @@ class CategoryWithProductsSerializer(serializers.ModelSerializer):
 
 class FactoryAvatarSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Factory
+        model = FactoryProfile
         fields = ['avatar']

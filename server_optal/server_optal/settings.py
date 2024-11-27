@@ -52,8 +52,8 @@ CORS_ALLOW_HEADERS = [
     'content-type',
     'x-csrftoken',
 ]
-AUTH_USER_MODEL_CUSTOMER = 'customers.Customer'
-AUTH_USER_MODEL_FACTORY = 'factories.Factory'
+
+AUTH_USER_MODEL = 'main.User'
 
 REST_FRAMEWORK = {
     'DEFAULT_RENDERER_CLASSES': [

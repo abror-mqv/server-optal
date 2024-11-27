@@ -1,11 +1,11 @@
 from django.urls import path
-from .views import CatApiView, FactoryDetailView, LatestProductsView, SubCategoryDetailView, CategoryDetailView, UpdateAvatarView, UpdateFactoryView, RegisterView, CreateProductView, ColorVariationCreateView, FactoryProductsView, ProductDetailView, ProductDeleteView
+from .views import CatApiView, FactoryDetailView, LatestProductsView, SubCategoryDetailView, CategoryDetailView, UpdateAvatarView, UpdateFactoryView, RegisterFactoryView, CreateProductView, ColorVariationCreateView, FactoryProductsView, ProductDetailView, ProductDeleteView
 from django.conf import settings
 from django.conf.urls.static import static
 
 urlpatterns = [
     path('cats', CatApiView.as_view(), name='category_tree'),
-    path('register/', RegisterView.as_view(), name='register'),
+    path('register/', RegisterFactoryView.as_view(), name='register'),
     path('products/color-variation/', ColorVariationCreateView.as_view(),
          name='create-color-variation'),
     path('get-factory/', FactoryDetailView.as_view(), name='factory-detail'),

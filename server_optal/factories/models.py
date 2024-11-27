@@ -1,33 +1,19 @@
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, AbstractUser, UserManager
-# Create your models here.
-
 from django.utils import timezone
+# from django.contrib.auth.models import User
+from main.models import User
 
 
-class Factory(AbstractUser):
-    factory_name = models.CharField(max_length=255, verbose_name="Описание")
-    first_name = models.CharField(max_length=255, verbose_name="Имя цеховика")
-    avatar = models.ImageField(
-        upload_to='avatars/', null=True, blank=True, verbose_name="Аватарка")
-    factory_description = models.TextField(
-        verbose_name="Описание", null=True, blank=True)
-
-    groups = models.ManyToManyField(
-        'auth.Group',
-        related_name='factory_groups',  # Уникальное имя
-        blank=True,
-        verbose_name='groups'
-    )
-    user_permissions = models.ManyToManyField(
-        'auth.Permission',
-        related_name='factory_user_permissions',  # Уникальное имя
-        blank=True,
-        verbose_name='user permissions'
-    )
+class FactoryProfile(models.Model):
+    user = models.OneToOneField(
+        User, on_delete=models.CASCADE)
+    factory_name = models.CharField(max_length=255)
+    registration_date = models.DateTimeField(auto_now_add=True)
+    factory_description = models.TextField(null=True, blank=True)
 
     def __str__(self):
-        return self.username
+        return f"Factory: {self.factory_name} ({self.user.username})"
 
 
 class Category(models.Model):
@@ -54,7 +40,7 @@ class Product(models.Model):
     description = models.TextField(
         verbose_name="Описание", max_length=255, default=None)
     father = models.ForeignKey(SubCategory, on_delete=models.CASCADE)
-    manufacter = models.ForeignKey(Factory, on_delete=models.CASCADE)
+    manufacter = models.ForeignKey(FactoryProfile, on_delete=models.CASCADE)
 
     created_at = models.DateTimeField(auto_now_add=True)
 

@@ -3,8 +3,8 @@ from django.forms import JSONField
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render
 from django.core.serializers import serialize
-from .models import Product, Category, SubCategory, Factory, ColorVariation
-from .serializers import CategorySerializer, FactoryAvatarSerializer, ProductSerializer, ColorVariationSerializer, FactorySerializer, CategoryWithProductsSerializer, SubCategoryWithProductsSerializer
+from .models import Product, Category, SubCategory, FactoryProfile, ColorVariation
+from .serializers import CategorySerializer, FactoryAvatarSerializer, FactoryProfileSerializer, FactorySerializer, ProductSerializer, ColorVariationSerializer, CategoryWithProductsSerializer, SubCategoryWithProductsSerializer
 
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
@@ -25,6 +25,7 @@ from rest_framework.decorators import action
 from rest_framework.permissions import AllowAny
 from rest_framework.status import HTTP_200_OK, HTTP_400_BAD_REQUEST
 from rest_framework.generics import RetrieveDestroyAPIView
+User = get_user_model()
 
 
 class CatApiView(APIView):
@@ -38,20 +39,22 @@ class CatApiView(APIView):
 
 class FactoryDetailView(APIView):
     permission_classes = [IsAuthenticated]
+    # authentication_classes = [TokenAuthentication]
 
     def get(self, request):
         try:
-            factory = request.user
-            serializer = FactorySerializer(factory)
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        except Factory.DoesNotExist:
-            return Response({"detail": "Factory not found."}, status=status.HTTP_404_NOT_FOUND)
+            factory = FactoryProfile.objects.get(user=request.user)
+            response = {
+                "first_name": factory.user.first_name,
+                "factory_name": factory.factory_name,
+                "factory_description": factory.factory_description
+            }
+            return Response(response, status=200)
+        except FactoryProfile.DoesNotExist:
+            return Response({"detail": "Factory not found."}, status=404)
 
 
-User = get_user_model()
-
-
-class RegisterView(APIView):
+class RegisterFactoryView(APIView):
     permission_classes = [AllowAny]
 
     def post(self, request):
@@ -63,15 +66,14 @@ class RegisterView(APIView):
         if not all([username, first_name, factory_name, password]):
             return Response({"error": "All fields are required."}, status=status.HTTP_400_BAD_REQUEST)
 
-        # Создайте пользователя
-        user = Factory.objects.create_user(
+        if User.objects.filter(username=username).exists():
+            return Response({"error": "User with this phone number already exists."}, status=status.HTTP_400_BAD_REQUEST)
+        user = User.objects.create_user(
             username=username,
             first_name=first_name,
-            factory_name=factory_name,
             password=password
         )
-
-        # Создайте токен
+        FactoryProfile.objects.create(user=user, factory_name=factory_name)
         token = Token.objects.create(user=user)
 
         return Response({"token": token.key}, status=status.HTTP_201_CREATED)
@@ -111,7 +113,8 @@ class FactoryProductsView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        factory = request.user
+        factory = FactoryProfile.objects.get(user=request.user)
+        print("EFEFEF", factory)
         products = Product.objects.filter(
             manufacter=factory).prefetch_related('color_variations')
         serializer = ProductSerializer(products, many=True)
