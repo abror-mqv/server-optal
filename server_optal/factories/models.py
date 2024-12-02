@@ -7,7 +7,7 @@ from main.models import User
 
 class FactoryProfile(models.Model):
     user = models.OneToOneField(
-        User, on_delete=models.CASCADE)
+        User, on_delete=models.CASCADE, related_name='factory_profile')
     factory_name = models.CharField(max_length=255)
     registration_date = models.DateTimeField(auto_now_add=True)
     factory_description = models.TextField(null=True, blank=True)

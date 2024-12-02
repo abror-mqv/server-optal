@@ -49,7 +49,7 @@ class ProductSerializer(serializers.ModelSerializer):
     class Meta:
         model = Product
         fields = ['id', 'name', 'price', 'sizes', 'description',
-                  'father', 'manufacter', 'color_variations']
+                  'father', 'manufacter', 'color_variations', "manufacter"]
 
 
 class FactoryRegistrationSerializer(serializers.ModelSerializer):
@@ -66,12 +66,13 @@ class FactoryRegistrationSerializer(serializers.ModelSerializer):
         FactoryProfile.objects.create(user=user, factory_name=factory_name)
         return user
 
+
 class FactoryProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = FactoryProfile
         fields = ['user', 'factory_name', 'factory_description']
 
-        
+
 class FactorySerializer(serializers.ModelSerializer):
     class Meta:
         model = FactoryProfile

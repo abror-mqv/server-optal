@@ -18,8 +18,11 @@ from rest_framework.authtoken.models import Token
 from rest_framework.decorators import api_view, authentication_classes, permission_classes
 from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.authentication import TokenAuthentication
+from django.core import serializers
 
 from rest_framework import viewsets
+from django.contrib.auth import authenticate
+
 from rest_framework.decorators import action
 
 from rest_framework.permissions import AllowAny
@@ -39,7 +42,6 @@ class CatApiView(APIView):
 
 class FactoryDetailView(APIView):
     permission_classes = [IsAuthenticated]
-    # authentication_classes = [TokenAuthentication]
 
     def get(self, request):
         try:
@@ -77,6 +79,33 @@ class RegisterFactoryView(APIView):
         token = Token.objects.create(user=user)
 
         return Response({"token": token.key}, status=status.HTTP_201_CREATED)
+
+
+class LoginFactoryView(APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        username = request.data.get('username')
+        password = request.data.get('password')
+        if not all([username, password]):
+            return Response(
+                {"error": "Username and password are required."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        user = authenticate(username=username, password=password)
+        print(str(user))
+        if user is None:
+            return Response(
+                {"error": "Invalid username or password."},
+                status=status.HTTP_401_UNAUTHORIZED
+            )
+        if not hasattr(user, 'factory_profile'):
+            return Response(
+                {"error": "User is not a factory."},
+                status=status.HTTP_403_FORBIDDEN
+            )
+        token, created = Token.objects.get_or_create(user=user)
+        return Response({"token": token.key}, status=status.HTTP_200_OK)
 
 
 class CreateProductView(APIView):
@@ -126,8 +155,58 @@ class FactoryProductsView(APIView):
 class ProductDetailView(generics.RetrieveAPIView):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
+    # print(str(serializer_class))
     permission_classes = [AllowAny]
     lookup_field = 'pk'
+
+
+class GetOneProduct(APIView):
+    permission_classes = [AllowAny]
+
+    def get(self, request, pk):
+        product_qs = Product.objects.filter(
+            pk=pk
+        ).prefetch_related('color_variations')
+        if not product_qs.exists():
+            return JsonResponse({"error": "Product not found"}, status=404)
+        product = product_qs.first()
+        product_data = {
+            "id": product.id,
+            "name": product.name,
+            "price": str(product.price),
+            "sizes": product.sizes,
+            "description": product.description,
+            "father": product.father.id if product.father else None,
+            "overall_rating": 4.7,
+            "feedbacks": [],
+            # "manufacter_id": product.manufacter.id if product.manufacter else None,
+            "manufacter": {
+                "factory_name": product.manufacter.factory_name,
+                "factory_avatar": None,
+                "factory_id": product.manufacter.id
+            },
+            "category": {
+                "category": {
+                    "id": product.father.father.id,
+                    "name": product.father.father.cat_name
+                },
+                "subcategory":  {
+                    "id": product.father.id,
+                    "name": product.father.subcat_name
+                },
+            },
+            "created_at": product.created_at.strftime('%Y-%m-%d %H:%M:%S'),
+            "color_variations": [
+                {
+                    "id": variation.id,
+                    "color_name": variation.color_name,
+                    "color_code": variation.color_code,
+                    "image": request.build_absolute_uri(variation.image.url) if variation.image else None,
+                }
+                for variation in product.color_variations.all()
+            ],
+        }
+        return JsonResponse(product_data, status=200)
 
 
 class ProductDeleteView(RetrieveDestroyAPIView):
@@ -143,12 +222,19 @@ class ProductDeleteView(RetrieveDestroyAPIView):
 class UpdateFactoryView(APIView):
     def put(self, request, *args, **kwargs):
         factory = FactoryProfile.objects.get(user=request.user)
-        serializer = FactorySerializer(
-            factory, data=request.data, partial=True)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        print("HEELLO", str(factory.factory_name))
+        print("HEELLO", str(factory.factory_description))
+        print("REQUEST", str(request.data["factory_description"]))
+
+        try:
+            factory.factory_name = request.data["factory_name"]
+            factory.factory_description = request.data["factory_description"]
+            factory.save()
+            return Response({"desc_n": factory.factory_description, "name_n": factory.factory_name}, status=status.HTTP_200_OK)
+
+        except:
+            print("EEFHEHHFEHFHEH")
+            return Response("BAD", status=status.HTTP_400_BAD_REQUEST)
 
 
 class CategoryListView(APIView):
