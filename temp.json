@@ -1,0 +1,31 @@
+[
+    {
+        "product_id": 7,
+        "name": "Тестовый товар",
+        "description": "Простое описание товара",
+        "price": "720.00",
+        "line_sizes": [
+            "35",
+            "38",
+            "41"
+        ],
+        "colors": [
+            {
+                "id": 6,
+                "color_hex": "#f27e21",
+                "color_name": "Апельсин",
+                "color_image": "/media/color_variant_images/f182ff096a9314bcd5255170a097055a.jpeg",
+                "in_stock": true,
+                "quantity": 2
+            },
+            {
+                "id": 7,
+                "color_hex": "#f85858",
+                "color_name": "Томат",
+                "color_image": "/media/color_variant_images/booksofwar.jpg",
+                "in_stock": true,
+                "quantity": 2
+            }
+        ]
+    }
+]

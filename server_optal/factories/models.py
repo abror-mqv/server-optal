@@ -35,8 +35,12 @@ class SubCategory(models.Model):
 class Product(models.Model):
     name = models.CharField(max_length=255)
     price = models.DecimalField(max_digits=10, decimal_places=2)
-    sizes = models.CharField(
-        verbose_name='Размеры', default=None, max_length=63, null=True, blank=True)
+    sizes = models.JSONField(
+        verbose_name='Размеры',
+        default=list,
+        blank=True,
+        null=True
+    )
     description = models.TextField(
         verbose_name="Описание", max_length=255, default=None)
     father = models.ForeignKey(SubCategory, on_delete=models.CASCADE)
