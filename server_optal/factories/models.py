@@ -58,7 +58,7 @@ class ColorVariation(models.Model):
     color_name = models.CharField(max_length=50)
     color_code = models.CharField(max_length=7)
     image = models.ImageField(
-        upload_to='color_variant_images/', null=True, blank=True)
+        upload_to='color_variant_images/', null=True, blank=True, max_length=255)
 
     def __str__(self):
         return f"{self.color_name} - {self.product.name}"

@@ -114,11 +114,10 @@ class CreateProductView(APIView):
     def post(self, request):
         product_data = request.data.copy()
         try:
-            product_data['manufacter'] = FactoryProfile.objects.get(user=request.user).id
+            product_data['manufacter'] = FactoryProfile.objects.get(
+                user=request.user).id
         except FactoryProfile.DoesNotExist:
             return Response({"error": "Factory profile not found"}, status=status.HTTP_400_BAD_REQUEST)
-
-        # Преобразуем размеры в JSON-объект
         sizes_raw = product_data.get('sizes')
         if sizes_raw:
             try:
@@ -133,11 +132,12 @@ class CreateProductView(APIView):
             return Response({"id": product.id, "message": "Product created successfully"}, status=status.HTTP_201_CREATED)
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        
+
 
 class ColorVariationCreateView(APIView):
     permission_classes = [IsAuthenticated]
     parser_classes = [MultiPartParser, FormParser]
+
     def post(self, request):
         data = request.data.copy()
         product_id = data.get('product')
@@ -153,6 +153,60 @@ class ColorVariationCreateView(APIView):
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+
+class UpdateProductView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def patch(self, request, product_id):
+        try:
+            product = Product.objects.get(
+                id=product_id, manufacter__user=request.user)
+        except Product.DoesNotExist:
+            return Response({"error": "Product not found or you do not have permission to edit this product"},
+                            status=status.HTTP_404_NOT_FOUND)
+
+        product_data = request.data.copy()
+
+        # Преобразуем размеры в JSON-объект, если переданы
+        sizes_raw = product_data.get('sizes')
+        if sizes_raw:
+            try:
+                sizes_json = [size.strip() for size in sizes_raw.split(',')]
+                product_data['sizes'] = sizes_json
+            except Exception as e:
+                return Response({"error": f"Invalid sizes format: {e}"}, status=status.HTTP_400_BAD_REQUEST)
+
+        serializer = ProductSerializer(
+            product, data=product_data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({"message": "Product updated successfully", "product": serializer.data},
+                            status=status.HTTP_200_OK)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class ColorVariationUpdateView(APIView):
+    permission_classes = [IsAuthenticated]
+    parser_classes = [MultiPartParser, FormParser]
+
+    def patch(self, request, color_variation_id):
+        try:
+            color_variation = ColorVariation.objects.get(
+                id=color_variation_id, product__manufacter__user=request.user)
+        except ColorVariation.DoesNotExist:
+            return Response({"error": "Color variation not found or you do not have permission to edit this color variation"},
+                            status=status.HTTP_404_NOT_FOUND)
+
+        data = request.data.copy()
+        serializer = ColorVariationSerializer(
+            color_variation, data=data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({"message": "Color variation updated successfully", "color_variation": serializer.data},
+                            status=status.HTTP_200_OK)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class FactoryProductsView(APIView):
