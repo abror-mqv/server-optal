@@ -59,6 +59,7 @@ class FactoryRegistrationSerializer(serializers.ModelSerializer):
         model = User
         fields = ('username', 'password', 'first_name', 'factory_name')
         extra_kwargs = {'password': {'write_only': True}}
+        
 
     def create(self, validated_data):
         factory_name = validated_data.pop('factory_name')

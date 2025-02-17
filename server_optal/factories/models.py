@@ -12,6 +12,9 @@ class FactoryProfile(models.Model):
     registration_date = models.DateTimeField(auto_now_add=True)
     factory_description = models.TextField(null=True, blank=True)
 
+    supplier_id = models.CharField(
+        max_length=6, editable=True, unique=True)
+
     def __str__(self):
         return f"Factory: {self.factory_name} ({self.user.username})"
 

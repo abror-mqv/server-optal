@@ -1,7 +1,7 @@
 import json
 from django.forms import JSONField
 from django.http import HttpResponse, JsonResponse
-from django.shortcuts import render
+from django.shortcuts import get_object_or_404, render
 from django.core.serializers import serialize
 from .models import Product, Category, SubCategory, FactoryProfile, ColorVariation
 from .serializers import CategorySerializer, FactoryAvatarSerializer, FactoryProfileSerializer, FactorySerializer, ProductSerializer, ColorVariationSerializer, CategoryWithProductsSerializer, SubCategoryWithProductsSerializer
@@ -19,9 +19,9 @@ from rest_framework.decorators import api_view, authentication_classes, permissi
 from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.authentication import TokenAuthentication
 from django.core import serializers
-
 from rest_framework import viewsets
 from django.contrib.auth import authenticate
+import random
 
 from rest_framework.decorators import action
 
@@ -64,6 +64,7 @@ class RegisterFactoryView(APIView):
         first_name = request.data.get('first_name')
         factory_name = request.data.get('factory_name')
         password = request.data.get('password')
+        supplier_id = self.generate_unique_supplier_id()
 
         if not all([username, first_name, factory_name, password]):
             return Response({"error": "All fields are required."}, status=status.HTTP_400_BAD_REQUEST)
@@ -75,10 +76,17 @@ class RegisterFactoryView(APIView):
             first_name=first_name,
             password=password
         )
-        FactoryProfile.objects.create(user=user, factory_name=factory_name)
+        FactoryProfile.objects.create(
+            user=user, factory_name=factory_name,  supplier_id=supplier_id)
         token = Token.objects.create(user=user)
 
         return Response({"token": token.key}, status=status.HTTP_201_CREATED)
+
+    def generate_unique_supplier_id(self):
+        while True:
+            supplier_id = ''.join(random.choices('0123456789', k=6))
+            if not FactoryProfile.objects.filter(supplier_id=supplier_id).exists():
+                return supplier_id
 
 
 class LoginFactoryView(APIView):
@@ -188,7 +196,6 @@ class UpdateProductView(APIView):
 
 class ColorVariationUpdateView(APIView):
     permission_classes = [IsAuthenticated]
-    parser_classes = [MultiPartParser, FormParser]
 
     def patch(self, request, color_variation_id):
         try:
@@ -368,3 +375,36 @@ class UpdateAvatarView(APIView):
             serializer.save()
             return Response({"message": "Аватарка обновлена успешно", "avatar_url": user.avatar.url}, status=HTTP_200_OK)
         return Response(serializer.errors, status=HTTP_400_BAD_REQUEST)
+
+
+class ColorVariationUpdateImageView(APIView):
+    permission_classes = [IsAuthenticated]
+    parser_classes = [MultiPartParser, FormParser]
+
+    def put(self, request, color_variation_id):
+        try:
+            color_variation = ColorVariation.objects.get(id=color_variation_id)
+        except ColorVariation.DoesNotExist:
+            return Response({"error": "Color variation not found"}, status=status.HTTP_404_NOT_FOUND)
+
+        image = request.FILES.get("image")
+        if not image:
+            return Response({"error": "No image provided"}, status=status.HTTP_400_BAD_REQUEST)
+
+        color_variation.image = image
+        color_variation.save()
+
+        return Response({"message": "Image updated successfully", "image_url": color_variation.image.url}, status=status.HTTP_200_OK)
+
+
+class ColorVariationDeleteView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def delete(self, request, color_variation_id):
+        color_variation = get_object_or_404(
+            ColorVariation, id=color_variation_id)
+        if color_variation.product.manufacter.user != request.user:
+            return Response({"error": "У вас нет прав на удаление этой вариации."}, status=status.HTTP_403_FORBIDDEN)
+
+        color_variation.delete()
+        return Response({"message": "Цветовая вариация удалена."}, status=status.HTTP_204_NO_CONTENT)

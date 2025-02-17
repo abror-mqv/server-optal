@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import CatApiView, FactoryDetailView, LoginFactoryView, GetOneProduct, LatestProductsView, SubCategoryDetailView, CategoryDetailView, UpdateAvatarView, UpdateFactoryView, RegisterFactoryView, CreateProductView, ColorVariationCreateView, FactoryProductsView, ProductDetailView, ProductDeleteView, UpdateProductView, ColorVariationUpdateView
+from .views import CatApiView, ColorVariationUpdateImageView, ColorVariationDeleteView, FactoryDetailView, LoginFactoryView, GetOneProduct, LatestProductsView, SubCategoryDetailView, CategoryDetailView, UpdateAvatarView, UpdateFactoryView, RegisterFactoryView, CreateProductView, ColorVariationCreateView, FactoryProductsView, ProductDetailView, ProductDeleteView, UpdateProductView, ColorVariationUpdateView
 from django.conf import settings
 from django.conf.urls.static import static
 
@@ -17,10 +17,12 @@ urlpatterns = [
 
     path("products/update/<int:product_id>/",
          UpdateProductView.as_view(), name='update_product'),
-    path("products/color-variation/update/<int:color_variation_id>/  ",
+    path("products/color-variation/update/<int:color_variation_id>/",
          ColorVariationUpdateView.as_view(), name='update_color_variation'),
-
-
+    path("product/color-variation/update-image/<int:color_variation_id>/",
+         ColorVariationUpdateImageView.as_view(), name="update_color_variation_image"),
+    path("product/color-variation/delete-color-variation/<int:color_variation_id>/",
+         ColorVariationDeleteView.as_view(), name="color_variation_delete"),
 
     path('products/<int:pk>/', GetOneProduct.as_view(), name='product-detail'),
     path('factory/products/<int:pk>/',
@@ -32,4 +34,5 @@ urlpatterns = [
     path('latest-products/', LatestProductsView.as_view(), name='latest-products'),
     path('subcategory/<int:subcategory_id>/',
          SubCategoryDetailView.as_view(), name='subcategory-detail'),
+
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
