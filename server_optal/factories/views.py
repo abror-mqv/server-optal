@@ -12,7 +12,6 @@ from django.views.generic import DetailView
 from rest_framework import generics
 from rest_framework.response import Response
 from rest_framework import status
-from telegram import Bot
 from django.contrib.auth import get_user_model
 from rest_framework.authtoken.models import Token
 from rest_framework.decorators import api_view, authentication_classes, permission_classes
@@ -22,6 +21,12 @@ from django.core import serializers
 from rest_framework import viewsets
 from django.contrib.auth import authenticate
 import random
+from io import BytesIO
+import qrcode
+
+import telebot
+import string
+
 
 from rest_framework.decorators import action
 
@@ -259,7 +264,9 @@ class GetOneProduct(APIView):
             "manufacter": {
                 "factory_name": product.manufacter.factory_name,
                 "factory_avatar": None,
-                "factory_id": product.manufacter.id
+                "factory_id": product.manufacter.id,
+                "factory_description": product.manufacter.factory_description,
+                "supplier_id": product.manufacter.supplier_id
             },
             "category": {
                 "category": {
@@ -408,3 +415,154 @@ class ColorVariationDeleteView(APIView):
 
         color_variation.delete()
         return Response({"message": "Цветовая вариация удалена."}, status=status.HTTP_204_NO_CONTENT)
+
+
+class FactoryProductsView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        factory = FactoryProfile.objects.get(user=request.user)
+        products = Product.objects.filter(
+            manufacter=factory).prefetch_related('color_variations')
+        serializer = ProductSerializer(products, many=True)
+        return Response(serializer.data)
+
+
+class FactoryProductsViewBoxViewD(APIView):
+
+    permission_classes = [AllowAny]
+
+    def get(self, request, supplier_id):
+        try:
+            factory = FactoryProfile.objects.get(supplier_id=supplier_id)
+        except FactoryProfile.DoesNotExist:
+            return Response({"error": "Factory not found"}, status=status.HTTP_404_NOT_FOUND)
+        factory.increment_visit_count()
+        products = Product.objects.filter(manufacter=factory)
+        serializer = ProductSerializer(products, many=True)
+
+        return Response({
+            "factory_name": factory.factory_name,
+            "factory_description": factory.factory_description,
+            "visit_count": factory.visit_count,
+            "products": serializer.data,
+            "supplier_id": supplier_id
+        })
+
+
+def generate_password():
+    # Генерация двух случайных букв
+    letters = ''.join(random.choice(string.ascii_lowercase) for _ in range(2))
+
+    # Генерация шести случайных цифр
+    digits = ''.join(random.choice(string.digits) for _ in range(6))
+
+    # Соединение букв и цифр в пароль
+    password = letters + digits
+    return password
+
+
+class RegisterBoxView(APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        print("ПРИНЯЛ ЗАПРОСА")
+        username = request.data.get('username')
+        first_name = request.data.get('first_name')
+        factory_name = request.data.get('factory_name')
+        password = generate_password()
+        supplier_id = self.generate_unique_supplier_id()
+
+        if not all([username, first_name, factory_name, password]):
+            return Response({"error": "All fields are required."}, status=status.HTTP_400_BAD_REQUEST)
+
+        if User.objects.filter(username=username).exists():
+            return Response({"error": "User with this phone number already exists."}, status=status.HTTP_400_BAD_REQUEST)
+        user = User.objects.create_user(
+            username=username,
+            first_name=first_name,
+            password=password
+        )
+        print('CAME HERE')
+        FactoryProfile.objects.create(
+            user=user, factory_name=factory_name,  supplier_id=supplier_id, imagoco=password)
+        token = Token.objects.create(user=user)
+        box_data = {
+            "supplier_id": supplier_id,
+            "number": username,
+            "first_name": first_name,
+            "box_name": factory_name,
+            "password": password,
+            "imagoco": password
+        }
+        self.send_telegram_new_box_created(box_data)
+        return Response({"token": token.key}, status=status.HTTP_201_CREATED)
+
+    def send_telegram_new_box_created(self, box_data):
+        print("TELEGRAM STARTER")
+        bot_token = "7752839364:AAE0nw55hvfrl5G4UZKB5zNeLd_2-bebfRA"
+        chat_ids = ["7471817775", "1901696570"]
+
+        # Формируем сообщение
+        message = (
+            f"Новый бокс\n"
+            f"ID: {box_data['supplier_id']}\n"
+            f"Номер: {box_data['number']}\n"
+            f"Имя: {box_data['first_name']}\n"
+            f"Бокс: {box_data['box_name']}\n"
+            f"Пароль: {box_data['password']}"
+        )
+
+        # Функция для генерации QR-кода
+        def generate_qr_code(data):
+            qr = qrcode.QRCode(
+                version=1,
+                error_correction=qrcode.constants.ERROR_CORRECT_L,
+                box_size=10,
+                border=4,
+            )
+            qr.add_data(data)
+            qr.make(fit=True)
+            img = qr.make_image(fill_color="black", back_color="white")
+            buffer = BytesIO()
+            img.save(buffer, format="PNG")
+            buffer.seek(0)
+            return buffer
+
+        # Генерируем первый QR-код
+        qr_url_1 = f"https://optal.ru/box/{box_data['supplier_id']}"
+        qr_code_1 = generate_qr_code(qr_url_1)
+
+        # Генерируем второй QR-код
+        qr_url_2 = f"https://optal.ru/bl/{box_data['number']}/{box_data['imagoco']}"
+        qr_code_2 = generate_qr_code(qr_url_2)
+
+        # Отправляем сообщение и QR-коды
+        bot = telebot.TeleBot(bot_token)
+        for chat_id in chat_ids:
+            try:
+                # Отправляем текстовое сообщение
+                bot.send_message(chat_id, message)
+
+                # Отправляем первый QR-код
+                qr_code_1.seek(0)  # Сбрасываем указатель потока в начало
+                bot.send_photo(chat_id, qr_code_1,
+                               caption="QR-код 1: Ссылка на бокс")
+
+                # Отправляем второй QR-код
+                qr_code_2.seek(0)  # Сбрасываем указатель потока в начало
+                bot.send_photo(chat_id, qr_code_2,
+                               caption="QR-код 2: Ссылка на вход")
+
+                print(
+                    f"Сообщение и QR-коды успешно отправлены в чат {chat_id}!")
+            except Exception as e:
+                bot.send_message(
+                    chat_id, "Ошибка отправки сообщения или QR-кодов")
+                print(f"Ошибка отправки в чат {chat_id}: {e}")
+
+    def generate_unique_supplier_id(self):
+        while True:
+            supplier_id = ''.join(random.choices('0123456789', k=6))
+            if not FactoryProfile.objects.filter(supplier_id=supplier_id).exists():
+                return supplier_id

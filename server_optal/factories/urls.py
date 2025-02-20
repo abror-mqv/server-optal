@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import CatApiView, ColorVariationUpdateImageView, ColorVariationDeleteView, FactoryDetailView, LoginFactoryView, GetOneProduct, LatestProductsView, SubCategoryDetailView, CategoryDetailView, UpdateAvatarView, UpdateFactoryView, RegisterFactoryView, CreateProductView, ColorVariationCreateView, FactoryProductsView, ProductDetailView, ProductDeleteView, UpdateProductView, ColorVariationUpdateView
+from .views import CatApiView, FactoryProductsView, RegisterBoxView, FactoryProductsViewBoxViewD, ColorVariationUpdateImageView, ColorVariationDeleteView, FactoryDetailView, LoginFactoryView, GetOneProduct, LatestProductsView, SubCategoryDetailView, CategoryDetailView, UpdateAvatarView, UpdateFactoryView, RegisterFactoryView, CreateProductView, ColorVariationCreateView, FactoryProductsView, ProductDetailView, ProductDeleteView, UpdateProductView, ColorVariationUpdateView
 from django.conf import settings
 from django.conf.urls.static import static
 
@@ -34,5 +34,10 @@ urlpatterns = [
     path('latest-products/', LatestProductsView.as_view(), name='latest-products'),
     path('subcategory/<int:subcategory_id>/',
          SubCategoryDetailView.as_view(), name='subcategory-detail'),
+
+    path("get-products-by-supplier-id/<int:supplier_id>/",
+         FactoryProductsViewBoxViewD.as_view(), name="box-products"),
+
+    path("box-create/", RegisterBoxView.as_view(), name="box_create")
 
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

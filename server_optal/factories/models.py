@@ -11,9 +11,15 @@ class FactoryProfile(models.Model):
     factory_name = models.CharField(max_length=255)
     registration_date = models.DateTimeField(auto_now_add=True)
     factory_description = models.TextField(null=True, blank=True)
-
+    visit_count = models.PositiveIntegerField(default=0)
     supplier_id = models.CharField(
         max_length=6, editable=True, unique=True)
+    imagoco = models.CharField(
+        max_length=255, null=True, blank=True, default="")
+
+    def increment_visit_count(self):
+        self.visit_count += 1
+        self.save(update_fields=["visit_count"])
 
     def __str__(self):
         return f"Factory: {self.factory_name} ({self.user.username})"
