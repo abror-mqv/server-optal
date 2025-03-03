@@ -3,7 +3,7 @@ from django.forms import JSONField
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, render
 from django.core.serializers import serialize
-from .models import Product, Category, SubCategory, FactoryProfile, ColorVariation
+from .models import Product, Category, StoreCategory, SubCategory, FactoryProfile, ColorVariation
 from .serializers import CategorySerializer, FactoryAvatarSerializer, FactoryProfileSerializer, FactorySerializer, ProductSerializer, ColorVariationSerializer, CategoryWithProductsSerializer, SubCategoryWithProductsSerializer
 from django.db import IntegrityError
 from rest_framework.views import APIView
@@ -21,6 +21,7 @@ from django.core import serializers
 from rest_framework import viewsets
 from django.contrib.auth import authenticate
 import random
+from django.db.models import Prefetch
 from io import BytesIO
 import qrcode
 
@@ -54,7 +55,9 @@ class FactoryDetailView(APIView):
             response = {
                 "first_name": factory.user.first_name,
                 "factory_name": factory.factory_name,
-                "factory_description": factory.factory_description
+                "factory_description": factory.factory_description,
+                "factory_avatar": request.build_absolute_uri(factory.avatar.url) if factory.avatar else None,
+                "supplier_id": factory.supplier_id
             }
             return Response(response, status=200)
         except FactoryProfile.DoesNotExist:
@@ -226,7 +229,6 @@ class FactoryProductsView(APIView):
 
     def get(self, request):
         factory = FactoryProfile.objects.get(user=request.user)
-        print("EFEFEF", factory)
         products = Product.objects.filter(
             manufacter=factory).prefetch_related('color_variations')
         serializer = ProductSerializer(products, many=True)
@@ -372,8 +374,9 @@ class LatestProductsView(APIView):
 
 class UpdateAvatarView(APIView):
     permission_classes = [IsAuthenticated]
+    parser_classes = [MultiPartParser, FormParser]
 
-    def patch(self, request):
+    def put(self, request):
         user = FactoryProfile.objects.get(
             user=request.user)  # текущий пользователь
         serializer = FactoryAvatarSerializer(
@@ -422,10 +425,38 @@ class FactoryProductsView(APIView):
 
     def get(self, request):
         factory = FactoryProfile.objects.get(user=request.user)
-        products = Product.objects.filter(
+
+        # Все товары фабрики
+        all_products = Product.objects.filter(
             manufacter=factory).prefetch_related('color_variations')
-        serializer = ProductSerializer(products, many=True)
-        return Response(serializer.data)
+
+        # Продукты без store_category
+        uncategorized_products = all_products.filter(
+            store_category__isnull=True)
+
+        # Категории с их продуктами
+        store_categories = StoreCategory.objects.filter(factory=factory).prefetch_related(
+            Prefetch('products', queryset=all_products.filter(
+                store_category__isnull=False))
+        )
+
+        # Формируем список категорий
+        categories_data = [
+            {
+                "id": None,  # Фейковый id для "Без раздела"
+                "name": "Без раздела",
+                "products": ProductSerializer(uncategorized_products, many=True).data
+            }
+        ] + [
+            {
+                "id": category.id,
+                "name": category.name,
+                "products": ProductSerializer(category.products.all(), many=True).data
+            }
+            for category in store_categories
+        ]
+
+        return Response(categories_data, status=HTTP_200_OK)
 
 
 class FactoryProductsViewBoxViewD(APIView):
@@ -435,18 +466,42 @@ class FactoryProductsViewBoxViewD(APIView):
     def get(self, request, supplier_id):
         try:
             factory = FactoryProfile.objects.get(supplier_id=supplier_id)
+            avatar = factory.avatar
         except FactoryProfile.DoesNotExist:
             return Response({"error": "Factory not found"}, status=status.HTTP_404_NOT_FOUND)
         factory.increment_visit_count()
-        products = Product.objects.filter(manufacter=factory)
-        serializer = ProductSerializer(products, many=True)
+
+        all_products = Product.objects.filter(
+            manufacter=factory).prefetch_related('color_variations')
+        uncategorized_products = all_products.filter(
+            store_category__isnull=True)
+        store_categories = StoreCategory.objects.filter(factory=factory).prefetch_related(
+            Prefetch('products', queryset=all_products.filter(
+                store_category__isnull=False))
+        )
+        categories_data = [
+            {
+                "id": None,  # Фейковый id для "Без раздела"
+                "name": "Без раздела",
+                "products": ProductSerializer(uncategorized_products, many=True).data
+            }
+        ] + [
+            {
+                "id": category.id,
+                "name": category.name,
+                "products": ProductSerializer(category.products.all(), many=True).data
+            }
+            for category in store_categories
+        ]
 
         return Response({
             "factory_name": factory.factory_name,
             "factory_description": factory.factory_description,
             "visit_count": factory.visit_count,
-            "products": serializer.data,
-            "supplier_id": supplier_id
+            "factory_avatar": request.build_absolute_uri(avatar.url) if avatar else None,
+            "supplier_id": supplier_id,
+
+            "products": categories_data
         })
 
 

@@ -1,5 +1,7 @@
 from django.urls import path
 from .views import CatApiView, FactoryProductsView, RegisterBoxView, FactoryProductsViewBoxViewD, ColorVariationUpdateImageView, ColorVariationDeleteView, FactoryDetailView, LoginFactoryView, GetOneProduct, LatestProductsView, SubCategoryDetailView, CategoryDetailView, UpdateAvatarView, UpdateFactoryView, RegisterFactoryView, CreateProductView, ColorVariationCreateView, FactoryProductsView, ProductDetailView, ProductDeleteView, UpdateProductView, ColorVariationUpdateView
+from .shared_views.stock_update import UpdateProductStockView
+from .shared_views.store_category import CreateStoreCategoryView, StoreCategoryUpdateDeleteView
 from django.conf import settings
 from django.conf.urls.static import static
 
@@ -38,6 +40,13 @@ urlpatterns = [
     path("get-products-by-supplier-id/<int:supplier_id>/",
          FactoryProductsViewBoxViewD.as_view(), name="box-products"),
 
-    path("box-create/", RegisterBoxView.as_view(), name="box_create")
+    path("box-create/", RegisterBoxView.as_view(), name="box_create"),
+    path('products/<int:product_id>/update-stock/',
+         UpdateProductStockView.as_view(), name='update-product-stock'),
+    path("store-categories/create/", CreateStoreCategoryView.as_view(),
+         name="create-store-category"),
+
+    path('store-categories/eidt/<int:category_id>/',
+         StoreCategoryUpdateDeleteView.as_view(), name='store-category-edit-delete'),
 
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

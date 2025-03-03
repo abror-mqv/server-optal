@@ -12,6 +12,8 @@ class FactoryProfile(models.Model):
     registration_date = models.DateTimeField(auto_now_add=True)
     factory_description = models.TextField(null=True, blank=True)
     visit_count = models.PositiveIntegerField(default=0)
+    avatar = models.ImageField(
+        upload_to='avatars/', null=True, blank=True, verbose_name="Аватарка", default=None)
     supplier_id = models.CharField(
         max_length=6, editable=True, unique=True)
     imagoco = models.CharField(
@@ -41,9 +43,19 @@ class SubCategory(models.Model):
         return f"{self.father.cat_name} -> {self.subcat_name}"
 
 
+class StoreCategory(models.Model):
+    factory = models.ForeignKey(
+        "FactoryProfile", on_delete=models.CASCADE, related_name="store_categories")
+    name = models.CharField(max_length=255)
+
+    def __str__(self):
+        return f"{self.factory.factory_name} - {self.name}"
+
+
 class Product(models.Model):
     name = models.CharField(max_length=255)
     price = models.DecimalField(max_digits=10, decimal_places=2)
+    in_stock = models.BooleanField(default=True)
     sizes = models.JSONField(
         verbose_name='Размеры',
         default=list,
@@ -53,6 +65,9 @@ class Product(models.Model):
     description = models.TextField(
         verbose_name="Описание", max_length=255, default=None)
     father = models.ForeignKey(SubCategory, on_delete=models.CASCADE)
+    store_category = models.ForeignKey(
+        StoreCategory, on_delete=models.SET_NULL, null=True, blank=True, related_name="products")
+
     manufacter = models.ForeignKey(FactoryProfile, on_delete=models.CASCADE)
 
     created_at = models.DateTimeField(auto_now_add=True)

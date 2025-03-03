@@ -49,7 +49,7 @@ class ProductSerializer(serializers.ModelSerializer):
     class Meta:
         model = Product
         fields = ['id', 'name', 'price', 'sizes', 'description',
-                  'father', 'manufacter', 'color_variations', "manufacter"]
+                  'father', "store_category", "in_stock", 'manufacter', 'color_variations', "manufacter"]
 
 
 class FactoryRegistrationSerializer(serializers.ModelSerializer):
@@ -59,7 +59,6 @@ class FactoryRegistrationSerializer(serializers.ModelSerializer):
         model = User
         fields = ('username', 'password', 'first_name', 'factory_name')
         extra_kwargs = {'password': {'write_only': True}}
-        
 
     def create(self, validated_data):
         factory_name = validated_data.pop('factory_name')
@@ -101,3 +100,15 @@ class FactoryAvatarSerializer(serializers.ModelSerializer):
     class Meta:
         model = FactoryProfile
         fields = ['avatar']
+
+
+class ProductInStockSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Product
+        fields = ['id', 'in_stock']
+
+
+class StoreCategorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Category
+        fields = ['id', 'name']

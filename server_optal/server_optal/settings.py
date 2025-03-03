@@ -39,7 +39,8 @@ CORS_ALLOWED_ORIGINS = [
     "http://optal.ru",
     "https://localhost:3000",
     "https://5.59.233.26",
-    "https://optal.ru"
+    "https://optal.ru",
+    "http://localhost:3000"
 ]
 
 CORS_ALLOW_ALL_ORIGINS = True
