@@ -186,7 +186,7 @@ class CartView(APIView):
                     "product_id": product.id,
                     "name": product.name,
                     "description": product.description,
-                    "price": str(product.price),
+                    "price": str(product.price_with_commission),
                     "sizes": product.sizes,
                     "color_variations": colors_data
                 })
@@ -277,7 +277,7 @@ class CheckoutView(APIView):
                     "image": variation.image.url if variation.image else None,
                     "in_stock": True,
                     "quantity": cart_item.quantity if cart_item else 0,
-                    "color_cost": int(cart_item.quantity) * int(product.price) * int(len(product.sizes))
+                    "color_cost": int(cart_item.quantity) * int(product.price_with_commission) * int(len(product.sizes))
                 })
 
             # Добавляем товар с его цветами
@@ -287,7 +287,7 @@ class CheckoutView(APIView):
                     "product_id": product.id,
                     "name": product.name,
                     "description": product.description,
-                    "price": str(product.price),
+                    "price": str(product.price_with_commission),
                     "sizes": product.sizes,
                     "color_variations": colors_data,
                     "total_cost": sum([color['color_cost'] for color in colors_data]),
@@ -407,7 +407,7 @@ class ConfirmOrder(APIView):
             product_id = product.get("product_id")
             name = product.get("name")
             description = product.get("description")
-            price = product.get("price")
+            price = product.get("price_with_commission")
             total_cost = product.get("total_cost")
             total_quantity = product.get("total_quantity")
             color_variations = product.get("color_variations", [])

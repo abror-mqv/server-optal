@@ -45,10 +45,10 @@ class ColorVariationSerializer(serializers.ModelSerializer):
 class ProductSerializer(serializers.ModelSerializer):
     # Добавляем поле color_variations как вложенный сериализатор
     color_variations = ColorVariationSerializer(many=True, read_only=True)
-
+    price_with_commission = serializers.ReadOnlyField()
     class Meta:
         model = Product
-        fields = ['id', 'name', 'price', 'sizes', 'description',
+        fields = ['id', 'name', 'price', "price_with_commission", 'sizes', 'description',
                   'father', "store_category", "in_stock", 'manufacter', 'color_variations', "manufacter"]
 
 

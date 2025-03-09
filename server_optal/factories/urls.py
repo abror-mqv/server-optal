@@ -1,7 +1,11 @@
 from django.urls import path
-from .views import CatApiView, FactoryProductsView, RegisterBoxView, FactoryProductsViewBoxViewD, ColorVariationUpdateImageView, ColorVariationDeleteView, FactoryDetailView, LoginFactoryView, GetOneProduct, LatestProductsView, SubCategoryDetailView, CategoryDetailView, UpdateAvatarView, UpdateFactoryView, RegisterFactoryView, CreateProductView, ColorVariationCreateView, FactoryProductsView, ProductDetailView, ProductDeleteView, UpdateProductView, ColorVariationUpdateView
+
+from .views import CatApiView, FactoryProductsView, FactoryProductsViewBoxViewD, ColorVariationUpdateImageView, ColorVariationDeleteView, FactoryDetailView, LoginFactoryView, GetOneProduct, LatestProductsView, SubCategoryDetailView, CategoryDetailView, UpdateAvatarView, UpdateFactoryView, RegisterFactoryView, CreateProductView, ColorVariationCreateView, FactoryProductsView, ProductDetailView, ProductDeleteView, UpdateProductView, ColorVariationUpdateView
 from .shared_views.stock_update import UpdateProductStockView
 from .shared_views.store_category import CreateStoreCategoryView, StoreCategoryUpdateDeleteView
+from .shared_views.get_my_percentage import GetMyPercentage
+from .shared_views.register_box import RegisterBoxView
+
 from django.conf import settings
 from django.conf.urls.static import static
 
@@ -48,5 +52,6 @@ urlpatterns = [
 
     path('store-categories/eidt/<int:category_id>/',
          StoreCategoryUpdateDeleteView.as_view(), name='store-category-edit-delete'),
+    path('get-my-percentage/', GetMyPercentage.as_view(), name='get-my-percentage')
 
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

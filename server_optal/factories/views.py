@@ -1,11 +1,8 @@
-import json
-from django.forms import JSONField
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, render
 from django.core.serializers import serialize
 from .models import Product, Category, StoreCategory, SubCategory, FactoryProfile, ColorVariation
 from .serializers import CategorySerializer, FactoryAvatarSerializer, FactoryProfileSerializer, FactorySerializer, ProductSerializer, ColorVariationSerializer, CategoryWithProductsSerializer, SubCategoryWithProductsSerializer
-from django.db import IntegrityError
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
 from django.views.generic import DetailView
@@ -257,6 +254,7 @@ class GetOneProduct(APIView):
             "id": product.id,
             "name": product.name,
             "price": str(product.price),
+            "price_with_commission": str(product.price_with_commission),
             "sizes": product.sizes,
             "description": product.description,
             "father": product.father.id if product.father else None,
@@ -367,7 +365,8 @@ class LatestProductsView(APIView):
     permission_classes = [AllowAny]
 
     def get(self, request):
-        products = Product.objects.all().order_by('-created_at')  # Order by newest
+        products = Product.objects.all().order_by('-created_at') 
+        print(str(products[0].price_with_commission)) # Order by newest
         serializer = ProductSerializer(products, many=True)
         return Response(serializer.data)
 
@@ -443,7 +442,7 @@ class FactoryProductsView(APIView):
         # Формируем список категорий
         categories_data = [
             {
-                "id": None,  # Фейковый id для "Без раздела"
+                "id": None,
                 "name": "Без раздела",
                 "products": ProductSerializer(uncategorized_products, many=True).data
             }
@@ -505,119 +504,6 @@ class FactoryProductsViewBoxViewD(APIView):
         })
 
 
-def generate_password():
-    # Генерация двух случайных букв
-    letters = ''.join(random.choice(string.ascii_lowercase) for _ in range(2))
-
-    # Генерация шести случайных цифр
-    digits = ''.join(random.choice(string.digits) for _ in range(6))
-
-    # Соединение букв и цифр в пароль
-    password = letters + digits
-    return password
 
 
-class RegisterBoxView(APIView):
-    permission_classes = [AllowAny]
 
-    def post(self, request):
-        print("ПРИНЯЛ ЗАПРОСА")
-        username = request.data.get('username')
-        first_name = request.data.get('first_name')
-        factory_name = request.data.get('factory_name')
-        password = generate_password()
-        supplier_id = self.generate_unique_supplier_id()
-
-        if not all([username, first_name, factory_name, password]):
-            return Response({"error": "All fields are required."}, status=status.HTTP_400_BAD_REQUEST)
-
-        if User.objects.filter(username=username).exists():
-            return Response({"error": "User with this phone number already exists."}, status=status.HTTP_400_BAD_REQUEST)
-        user = User.objects.create_user(
-            username=username,
-            first_name=first_name,
-            password=password
-        )
-        print('CAME HERE')
-        FactoryProfile.objects.create(
-            user=user, factory_name=factory_name,  supplier_id=supplier_id, imagoco=password)
-        token = Token.objects.create(user=user)
-        box_data = {
-            "supplier_id": supplier_id,
-            "number": username,
-            "first_name": first_name,
-            "box_name": factory_name,
-            "password": password,
-            "imagoco": password
-        }
-        self.send_telegram_new_box_created(box_data)
-        return Response({"token": token.key}, status=status.HTTP_201_CREATED)
-
-    def send_telegram_new_box_created(self, box_data):
-        print("TELEGRAM STARTER")
-        bot_token = "7752839364:AAE0nw55hvfrl5G4UZKB5zNeLd_2-bebfRA"
-        chat_ids = ["7471817775", "1901696570"]
-
-        # Формируем сообщение
-        message = (
-            f"Новый бокс\n"
-            f"ID: {box_data['supplier_id']}\n"
-            f"Номер: {box_data['number']}\n"
-            f"Имя: {box_data['first_name']}\n"
-            f"Бокс: {box_data['box_name']}\n"
-            f"Пароль: {box_data['password']}"
-        )
-
-        # Функция для генерации QR-кода
-        def generate_qr_code(data):
-            qr = qrcode.QRCode(
-                version=1,
-                error_correction=qrcode.constants.ERROR_CORRECT_L,
-                box_size=10,
-                border=4,
-            )
-            qr.add_data(data)
-            qr.make(fit=True)
-            img = qr.make_image(fill_color="black", back_color="white")
-            buffer = BytesIO()
-            img.save(buffer, format="PNG")
-            buffer.seek(0)
-            return buffer
-
-        # Генерируем первый QR-код
-        qr_url_1 = f"https://optal.ru/box/{box_data['supplier_id']}"
-        qr_code_1 = generate_qr_code(qr_url_1)
-
-        # Генерируем второй QR-код
-        qr_url_2 = f"https://optal.ru/bl/{box_data['number']}/{box_data['imagoco']}"
-        qr_code_2 = generate_qr_code(qr_url_2)
-
-        # Отправляем сообщение и QR-коды
-        bot = telebot.TeleBot(bot_token)
-        for chat_id in chat_ids:
-            try:
-                # Отправляем текстовое сообщение
-                bot.send_message(chat_id, message)
-
-                # Отправляем первый QR-код
-                qr_code_1.seek(0)  # Сбрасываем указатель потока в начало
-                bot.send_photo(chat_id, qr_code_1,
-                               caption="QR-код 1: Ссылка на бокс")
-
-                # Отправляем второй QR-код
-                qr_code_2.seek(0)  # Сбрасываем указатель потока в начало
-                bot.send_photo(chat_id, qr_code_2,
-                               caption="QR-код 2: Ссылка на вход")
-
-                print(
-                    f"Сообщение и QR-коды успешно отправлены в чат {chat_id}!")
-            except Exception as e:
-                bot.send_message(
-                    chat_id, "Ошибка отправки сообщения или QR-кодов")
-                print(f"Ошибка отправки в чат {chat_id}: {e}")
-
-    def generate_unique_supplier_id(self):
-        while True:
-            supplier_id = ''.join(random.choices('0123456789', k=6))
-            if not FactoryProfile.objects.filter(supplier_id=supplier_id).exists():
-                return supplier_id

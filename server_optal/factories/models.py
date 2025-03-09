@@ -19,6 +19,13 @@ class FactoryProfile(models.Model):
     imagoco = models.CharField(
         max_length=255, null=True, blank=True, default="")
 
+    def get_commission(self):
+        custom_commission = SellerCommission.objects.filter(
+            seller=self).first()
+        if custom_commission:
+            return custom_commission.custom_percentage
+        return CommissionSettings.objects.first().percentage
+
     def increment_visit_count(self):
         self.visit_count += 1
         self.save(update_fields=["visit_count"])
@@ -55,6 +62,12 @@ class StoreCategory(models.Model):
 class Product(models.Model):
     name = models.CharField(max_length=255)
     price = models.DecimalField(max_digits=10, decimal_places=2)
+
+    @property
+    def price_with_commission(self):
+        commission_percentage = self.manufacter.get_commission() / 100
+        return self.price * (1 + commission_percentage)
+    
     in_stock = models.BooleanField(default=True)
     sizes = models.JSONField(
         verbose_name='Размеры',
@@ -86,3 +99,19 @@ class ColorVariation(models.Model):
 
     def __str__(self):
         return f"{self.color_name} - {self.product.name}"
+
+
+class CommissionSettings(models.Model):
+    percentage = models.DecimalField(
+        max_digits=5, decimal_places=2, default=10.0)
+
+    def __str__(self):
+        return f"Текущая комиссия: {self.percentage}%"
+
+
+class SellerCommission(models.Model):
+    seller = models.OneToOneField(FactoryProfile, on_delete=models.CASCADE)
+    custom_percentage = models.DecimalField(max_digits=5, decimal_places=2)
+
+    def __str__(self):
+        return f"{self.seller.name} - {self.custom_percentage}%"
