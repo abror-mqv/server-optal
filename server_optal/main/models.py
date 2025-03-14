@@ -16,6 +16,10 @@ class UserManager(BaseUserManager):
         extra_fields.setdefault('is_superuser', True)
         return self.create_user(username, password, **extra_fields)
 
+    class Meta:
+        verbose_name = "Диспетчер пользователей"
+        verbose_name_plural = "Сущности пользователей"
+
 
 class User(AbstractBaseUser, PermissionsMixin):
     username = models.CharField(
@@ -32,6 +36,10 @@ class User(AbstractBaseUser, PermissionsMixin):
     def __str__(self):
         return self.username
 
+    class Meta:
+        verbose_name = "Подкатегория"
+        verbose_name_plural = "Подкатегории"
+
 
 class ExchangeRate(models.Model):
     currency_code = models.CharField(max_length=3, unique=True)
@@ -41,3 +49,7 @@ class ExchangeRate(models.Model):
 
     def __str__(self):
         return f"{self.currency_code}: {self.rate_to_kgs}"
+
+    class Meta:
+        verbose_name = "Курс валют"
+        verbose_name_plural = "Курсы валют"

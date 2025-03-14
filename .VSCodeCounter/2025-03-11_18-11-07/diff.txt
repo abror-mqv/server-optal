@@ -1,0 +1,59 @@
+Date : 2025-03-11 18:11:07
+Directory : c:\Users\HP\Desktop\optal\server-optal\server-optal\server_optal\main
+Total : 29 files,  -724 codes, -37 comments, -170 blanks, all -931 lines
+
+Languages
++----------+------------+------------+------------+------------+------------+
+| language | files      | code       | comment    | blank      | total      |
++----------+------------+------------+------------+------------+------------+
+| Python   |         29 |       -724 |        -37 |       -170 |       -931 |
++----------+------------+------------+------------+------------+------------+
+
+Directories
++-------------------------------------------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| path                                                                                                                          | files      | code       | comment    | blank      | total      |
++-------------------------------------------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| .                                                                                                                             |         29 |       -724 |        -37 |       -170 |       -931 |
+| . (Files)                                                                                                                     |          8 |         67 |          2 |         27 |         96 |
+| ..                                                                                                                            |         18 |       -834 |        -41 |       -211 |     -1,086 |
+| ..\customers                                                                                                                  |         18 |       -834 |        -41 |       -211 |     -1,086 |
+| ..\customers (Files)                                                                                                          |          8 |       -650 |        -32 |       -154 |       -836 |
+| ..\customers\migrations                                                                                                       |         10 |       -184 |         -9 |        -57 |       -250 |
+| migrations                                                                                                                    |          3 |         43 |          2 |         14 |         59 |
++-------------------------------------------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+
+Files
++-------------------------------------------------------------------------------------------------------------------------------+----------+------------+------------+------------+------------+
+| filename                                                                                                                      | language | code       | comment    | blank      | total      |
++-------------------------------------------------------------------------------------------------------------------------------+----------+------------+------------+------------+------------+
+| c:\Users\HP\Desktop\optal\server-optal\server-optal\server_optal\customers\__init__.py                                        | Python   |          0 |          0 |         -1 |         -1 |
+| c:\Users\HP\Desktop\optal\server-optal\server-optal\server_optal\customers\admin.py                                           | Python   |         -6 |         -1 |         -2 |         -9 |
+| c:\Users\HP\Desktop\optal\server-optal\server-optal\server_optal\customers\apps.py                                            | Python   |         -4 |          0 |         -3 |         -7 |
+| c:\Users\HP\Desktop\optal\server-optal\server-optal\server_optal\customers\migrations\0001_initial.py                         | Python   |        -29 |         -1 |         -7 |        -37 |
+| c:\Users\HP\Desktop\optal\server-optal\server-optal\server_optal\customers\migrations\0002_initial.py                         | Python   |        -37 |         -1 |         -7 |        -45 |
+| c:\Users\HP\Desktop\optal\server-optal\server-optal\server_optal\customers\migrations\0003_order_orderitem.py                 | Python   |        -32 |         -1 |         -6 |        -39 |
+| c:\Users\HP\Desktop\optal\server-optal\server-optal\server_optal\customers\migrations\0004_order_snapshot_delete_orderitem.py | Python   |        -15 |         -1 |         -6 |        -22 |
+| c:\Users\HP\Desktop\optal\server-optal\server-optal\server_optal\customers\migrations\0005_order_city_delivery.py             | Python   |        -14 |         -1 |         -6 |        -21 |
+| c:\Users\HP\Desktop\optal\server-optal\server-optal\server_optal\customers\migrations\0006_alter_order_city_delivery.py       | Python   |        -12 |         -1 |         -6 |        -19 |
+| c:\Users\HP\Desktop\optal\server-optal\server-optal\server_optal\customers\migrations\0007_order_customer_snapshot.py         | Python   |        -12 |         -1 |         -6 |        -19 |
+| c:\Users\HP\Desktop\optal\server-optal\server-optal\server_optal\customers\migrations\0008_order_detailed_snapshot.py         | Python   |        -12 |         -1 |         -6 |        -19 |
+| c:\Users\HP\Desktop\optal\server-optal\server-optal\server_optal\customers\migrations\0009_quickorder.py                      | Python   |        -21 |         -1 |         -6 |        -28 |
+| c:\Users\HP\Desktop\optal\server-optal\server-optal\server_optal\customers\migrations\__init__.py                             | Python   |          0 |          0 |         -1 |         -1 |
+| c:\Users\HP\Desktop\optal\server-optal\server-optal\server_optal\customers\models.py                                          | Python   |        -62 |          0 |        -18 |        -80 |
+| c:\Users\HP\Desktop\optal\server-optal\server-optal\server_optal\customers\serializers.py                                     | Python   |        -79 |        -10 |        -26 |       -115 |
+| c:\Users\HP\Desktop\optal\server-optal\server-optal\server_optal\customers\tests.py                                           | Python   |         -1 |         -1 |         -2 |         -4 |
+| c:\Users\HP\Desktop\optal\server-optal\server-optal\server_optal\customers\urls.py                                            | Python   |        -25 |          0 |         -2 |        -27 |
+| c:\Users\HP\Desktop\optal\server-optal\server-optal\server_optal\customers\views.py                                           | Python   |       -473 |        -20 |       -100 |       -593 |
+| c:\Users\HP\Desktop\optal\server-optal\server-optal\server_optal\main\__init__.py                                             | Python   |          0 |          0 |          1 |          1 |
+| c:\Users\HP\Desktop\optal\server-optal\server-optal\server_optal\main\admin.py                                                | Python   |          7 |          1 |          1 |          9 |
+| c:\Users\HP\Desktop\optal\server-optal\server-optal\server_optal\main\apps.py                                                 | Python   |          0 |          0 |          1 |          1 |
+| c:\Users\HP\Desktop\optal\server-optal\server-optal\server_optal\main\migrations\0001_initial.py                              | Python   |         27 |          1 |          7 |         35 |
+| c:\Users\HP\Desktop\optal\server-optal\server-optal\server_optal\main\migrations\0002_exchangerate.py                         | Python   |         16 |          1 |          6 |         23 |
+| c:\Users\HP\Desktop\optal\server-optal\server-optal\server_optal\main\migrations\__init__.py                                  | Python   |          0 |          0 |          1 |          1 |
+| c:\Users\HP\Desktop\optal\server-optal\server-optal\server_optal\main\models.py                                               | Python   |         32 |          0 |         12 |         44 |
+| c:\Users\HP\Desktop\optal\server-optal\server-optal\server_optal\main\serializers.py                                          | Python   |          6 |          0 |          3 |          9 |
+| c:\Users\HP\Desktop\optal\server-optal\server-optal\server_optal\main\tests.py                                                | Python   |          1 |          1 |          2 |          4 |
+| c:\Users\HP\Desktop\optal\server-optal\server-optal\server_optal\main\urls.py                                                 | Python   |          8 |          0 |          3 |         11 |
+| c:\Users\HP\Desktop\optal\server-optal\server-optal\server_optal\main\views.py                                                | Python   |         13 |          0 |          4 |         17 |
+| Total                                                                                                                         |          |       -724 |        -37 |       -170 |       -931 |
++-------------------------------------------------------------------------------------------------------------------------------+----------+------------+------------+------------+------------+

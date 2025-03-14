@@ -33,12 +33,20 @@ class FactoryProfile(models.Model):
     def __str__(self):
         return f"Factory: {self.factory_name} ({self.user.username})"
 
+    class Meta:
+        verbose_name = "Бокс/Производитель"
+        verbose_name_plural = "Боксы/Производители"
+
 
 class Category(models.Model):
     cat_name = models.CharField(verbose_name='Категория', max_length=127)
 
     def __str__(self):
         return self.cat_name
+
+    class Meta:
+        verbose_name = "Категория"
+        verbose_name_plural = "Категории"
 
 
 class SubCategory(models.Model):
@@ -49,6 +57,10 @@ class SubCategory(models.Model):
     def __str__(self):
         return f"{self.father.cat_name} -> {self.subcat_name}"
 
+    class Meta:
+        verbose_name = "Подкатегория"
+        verbose_name_plural = "Подкатегории"
+
 
 class StoreCategory(models.Model):
     factory = models.ForeignKey(
@@ -57,6 +69,10 @@ class StoreCategory(models.Model):
 
     def __str__(self):
         return f"{self.factory.factory_name} - {self.name}"
+
+    class Meta:
+        verbose_name = "Раздел"
+        verbose_name_plural = "Разделы"
 
 
 class Product(models.Model):
@@ -67,7 +83,7 @@ class Product(models.Model):
     def price_with_commission(self):
         commission_percentage = self.manufacter.get_commission() / 100
         return self.price * (1 + commission_percentage)
-    
+
     in_stock = models.BooleanField(default=True)
     sizes = models.JSONField(
         verbose_name='Размеры',
@@ -88,6 +104,10 @@ class Product(models.Model):
     def __str__(self):
         return self.name
 
+    class Meta:
+        verbose_name = "Продукт"
+        verbose_name_plural = "Продукты"
+
 
 class ColorVariation(models.Model):
     product = models.ForeignKey(
@@ -100,6 +120,10 @@ class ColorVariation(models.Model):
     def __str__(self):
         return f"{self.color_name} - {self.product.name}"
 
+    class Meta:
+        verbose_name = "Расцветка"
+        verbose_name_plural = "Расцветки"
+
 
 class CommissionSettings(models.Model):
     percentage = models.DecimalField(
@@ -108,10 +132,80 @@ class CommissionSettings(models.Model):
     def __str__(self):
         return f"Текущая комиссия: {self.percentage}%"
 
+    class Meta:
+        verbose_name = "Общая комиссия"
+        verbose_name_plural = "Общая комиссия"
+
 
 class SellerCommission(models.Model):
     seller = models.OneToOneField(FactoryProfile, on_delete=models.CASCADE)
     custom_percentage = models.DecimalField(max_digits=5, decimal_places=2)
 
+    class Meta:
+        verbose_name = "Уникальная комиссия"
+        verbose_name_plural = "Уникальные комиссии"
+
+
+class Promotion(models.Model):
+    PROMOTION_TYPE_CHOICES = [
+        ('clearance', 'Ликвидация товара'),
+        ('discount', 'Скидки'),
+        ('seasonal', 'Сезонные акции'),
+    ]
+
+    title = models.CharField(max_length=255)
+    description = models.TextField(blank=True)
+    description_for_factory = models.TextField(blank=True, null=True)
+    recommended_drop = models.CharField(max_length=127, null=True, blank=True)
+    promotion_type = models.CharField(
+        max_length=50, choices=PROMOTION_TYPE_CHOICES)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
     def __str__(self):
-        return f"{self.seller.name} - {self.custom_percentage}%"
+        return self.title
+
+    class Meta:
+        verbose_name = "Акция"
+        verbose_name_plural = "Акции"
+
+
+class PromotionApplication(models.Model):
+    STATUS_CHOICES = [
+        ('pending', 'Ожидание'),
+        ('approved', 'Одобрено'),
+        ('rejected', 'Отклонено'),
+    ]
+
+    promotion = models.ForeignKey(
+        Promotion, related_name='applications', on_delete=models.CASCADE)
+    product = models.ForeignKey(
+        'Product', related_name='promotion_applications', on_delete=models.CASCADE)
+    seller = models.ForeignKey(
+        FactoryProfile, related_name='promotion_applications', on_delete=models.CASCADE)
+    status = models.CharField(
+        max_length=20, choices=STATUS_CHOICES, default='pending')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f'{self.product} - {self.promotion} ({self.status})'
+
+    class Meta:
+        verbose_name = "Заявка на акцию"
+        verbose_name_plural = "Заявки на акции"
+
+
+class ProductPromotion(models.Model):
+    promotion = models.ForeignKey(
+        Promotion, related_name='product_promotions', on_delete=models.CASCADE)
+    product = models.ForeignKey(
+        'Product', related_name='promotions', on_delete=models.CASCADE)
+    discount_price = models.DecimalField(max_digits=10, decimal_places=2)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f'{self.product} в {self.promotion}'
+
+    class Meta:
+        verbose_name = "Продукт в акции"
+        verbose_name_plural = "Продукты в акциях"

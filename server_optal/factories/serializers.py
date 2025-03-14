@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import SubCategory, Product, Category, ColorVariation
+from .models import SubCategory, Product, Category, ColorVariation, PromotionApplication
 from main.models import User
 from .models import FactoryProfile
 
@@ -112,3 +112,11 @@ class StoreCategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = Category
         fields = ['id', 'name']
+
+
+
+class PromotionApplicationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PromotionApplication
+        fields = ['product', 'promotion', 'status']
+        read_only_fields = ['status']
