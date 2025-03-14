@@ -37,8 +37,8 @@ class User(AbstractBaseUser, PermissionsMixin):
         return self.username
 
     class Meta:
-        verbose_name = "Подкатегория"
-        verbose_name_plural = "Подкатегории"
+        verbose_name = "Сущность пользователя"
+        verbose_name_plural = "Сущности пользователей"
 
 
 class ExchangeRate(models.Model):

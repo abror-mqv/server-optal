@@ -1,6 +1,8 @@
 # admin.py
 from django.contrib import admin
-from .models import ExchangeRate
+from .models import ExchangeRate, User
+
+admin.site.register(User)
 
 @admin.register(ExchangeRate)
 class ExchangeRateAdmin(admin.ModelAdmin):
