@@ -250,6 +250,7 @@ class GetOneProduct(APIView):
         if not product_qs.exists():
             return JsonResponse({"error": "Product not found"}, status=404)
         product = product_qs.first()
+        avatar = product.manufacter.avatar
         product_data = {
             "id": product.id,
             "name": product.name,
@@ -263,7 +264,7 @@ class GetOneProduct(APIView):
             # "manufacter_id": product.manufacter.id if product.manufacter else None,
             "manufacter": {
                 "factory_name": product.manufacter.factory_name,
-                "factory_avatar": None,
+                "factory_avatar": request.build_absolute_uri(avatar.url) if avatar else None, 
                 "factory_id": product.manufacter.id,
                 "factory_description": product.manufacter.factory_description,
                 "supplier_id": product.manufacter.supplier_id
@@ -365,8 +366,7 @@ class LatestProductsView(APIView):
     permission_classes = [AllowAny]
 
     def get(self, request):
-        products = Product.objects.all().order_by('-created_at') 
-        print(str(products[0].price_with_commission)) # Order by newest
+        products = Product.objects.all().order_by('-created_at')
         serializer = ProductSerializer(products, many=True)
         return Response(serializer.data)
 
@@ -502,8 +502,3 @@ class FactoryProductsViewBoxViewD(APIView):
 
             "products": categories_data
         })
-
-
-
-
-

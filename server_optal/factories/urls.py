@@ -5,7 +5,7 @@ from .shared_views.stock_update import UpdateProductStockView
 from .shared_views.store_category import CreateStoreCategoryView, StoreCategoryUpdateDeleteView
 from .shared_views.get_my_percentage import GetMyPercentage
 from .shared_views.register_box import RegisterBoxView
-from .shared_views.promotions import PromotionApplicationCreateView, PromotionListView
+from .shared_views.promotions import PromotionApplicationCreateView, PromotionListView, PromotionProductsView, RemoveProductFromPromotionView
 
 from django.conf import settings
 from django.conf.urls.static import static
@@ -56,5 +56,10 @@ urlpatterns = [
     path('get-my-percentage/', GetMyPercentage.as_view(), name='get-my-percentage'),
     path('promotions/apply/', PromotionApplicationCreateView.as_view(),
          name='promotion-apply'),
-    path('promotions/getlist', PromotionListView.as_view(), name='promotion-list'),
+    path('promotions/getlist/<int:product_id>/',
+         PromotionListView.as_view(), name='promotion-list'),
+    path('promotions/<str:promotion_id>/products/',
+         PromotionProductsView.as_view(), name='promotion-products'),
+    path('promotions/remove-product/', RemoveProductFromPromotionView.as_view(),
+         name='remove-product-from-promotion'),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
