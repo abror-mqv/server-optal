@@ -42,7 +42,7 @@ urlpatterns = [
     path('subcategory/<int:subcategory_id>/',
          SubCategoryDetailView.as_view(), name='subcategory-detail'),
 
-    path("get-products-by-supplier-id/<int:supplier_id>/",
+    path("get-products-by-supplier-id/<str:supplier_id>/",
          FactoryProductsViewBoxViewD.as_view(), name="box-products"),
 
     path("box-create/", RegisterBoxView.as_view(), name="box_create"),
