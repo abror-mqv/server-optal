@@ -209,3 +209,13 @@ class ProductPromotion(models.Model):
     class Meta:
         verbose_name = "Продукт в акции"
         verbose_name_plural = "Продукты в акциях"
+
+
+class Subscription(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='subscriptions', null=True, blank=True)
+    box = models.ForeignKey(FactoryProfile, on_delete=models.CASCADE)
+    session_id = models.CharField(max_length=255, null=True, blank=True)  # Для незарегистрированных пользователей
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('user', 'box')  # Один пользователь не может подписаться на один и тот же бокс дважды

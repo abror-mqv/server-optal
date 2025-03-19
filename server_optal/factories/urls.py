@@ -6,9 +6,17 @@ from .shared_views.store_category import CreateStoreCategoryView, StoreCategoryU
 from .shared_views.get_my_percentage import GetMyPercentage
 from .shared_views.register_box import RegisterBoxView
 from .shared_views.promotions import PromotionApplicationCreateView, PromotionListView, PromotionProductsView, RemoveProductFromPromotionView
+from .shared_views.subscribe import SubscriptionViewSet, get_suppliers_info
 
 from django.conf import settings
 from django.conf.urls.static import static
+
+
+subscription_create_view = SubscriptionViewSet.as_view({'post': 'create'})
+subscription_list_view = SubscriptionViewSet.as_view(
+    {'get': 'my_subscriptions'})
+subscription_unsubscribe_view = SubscriptionViewSet.as_view(
+    {'post': 'unsubscribe'})
 
 urlpatterns = [
     path('cats', CatApiView.as_view(), name='category_tree'),
@@ -62,4 +70,12 @@ urlpatterns = [
          PromotionProductsView.as_view(), name='promotion-products'),
     path('promotions/remove-product/', RemoveProductFromPromotionView.as_view(),
          name='remove-product-from-promotion'),
+
+
+    path('subscriptions/', subscription_create_view,
+         name='subscription-create'),
+    path('subscriptions/my/', subscription_list_view, name='subscription-list'),
+    path('subscriptions/unsubscribe/',
+         subscription_unsubscribe_view, name='subscription-unsubscribe'),
+     path('get_suppliers_info/', get_suppliers_info)
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

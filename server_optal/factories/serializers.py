@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from .models import SubCategory, Product, Category, ColorVariation, PromotionApplication
 from main.models import User
-from .models import FactoryProfile
+from .models import FactoryProfile, Subscription
 
 
 class SubcatsSerializer(serializers.ModelSerializer):
@@ -46,6 +46,7 @@ class ProductSerializer(serializers.ModelSerializer):
     # Добавляем поле color_variations как вложенный сериализатор
     color_variations = ColorVariationSerializer(many=True, read_only=True)
     price_with_commission = serializers.ReadOnlyField()
+
     class Meta:
         model = Product
         fields = ['id', 'name', 'price', "price_with_commission", 'sizes', 'description',
@@ -70,7 +71,8 @@ class FactoryRegistrationSerializer(serializers.ModelSerializer):
 class FactoryProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = FactoryProfile
-        fields = ['user', 'factory_name', 'factory_description']
+        fields = ['user', 'factory_name',
+                  'factory_description', "avatar", "supplier_id"]
 
 
 class FactorySerializer(serializers.ModelSerializer):
@@ -114,9 +116,21 @@ class StoreCategorySerializer(serializers.ModelSerializer):
         fields = ['id', 'name']
 
 
-
 class PromotionApplicationSerializer(serializers.ModelSerializer):
     class Meta:
         model = PromotionApplication
         fields = ['product', 'promotion', 'status']
         read_only_fields = ['status']
+
+
+class SubscriptionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Subscription
+        fields = ['id', 'user', 'box', 'session_id', 'created_at']
+
+
+class BoxSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = FactoryProfile
+        # supplier_id - это твой 6-значный номер
+        fields = ['id', 'name', 'description', 'supplier_id']
