@@ -43,6 +43,8 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000"
 ]
 
+CSRF_TRUSTED_ORIGINS = ['https://optal.ru']
+
 CORS_ALLOW_ALL_ORIGINS = True
 
 # SESSION_COOKIE_SECURE = True
