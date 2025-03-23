@@ -1,12 +1,13 @@
 from django.urls import path
 
-from .views import CatApiView, FactoryProductsView, FactoryProductsViewBoxViewD, ColorVariationUpdateImageView, ColorVariationDeleteView, FactoryDetailView, LoginFactoryView, GetOneProduct, LatestProductsView, SubCategoryDetailView, CategoryDetailView, UpdateAvatarView, UpdateFactoryView, RegisterFactoryView, CreateProductView, ColorVariationCreateView, FactoryProductsView, ProductDetailView, ProductDeleteView, UpdateProductView, ColorVariationUpdateView
+from .views import CatApiView, FactoryProductsView, FactoryProductsViewBoxViewD, ColorVariationUpdateImageView, ColorVariationDeleteView, FactoryDetailView, LoginFactoryView, GetOneProduct, SubCategoryDetailView, CategoryDetailView, UpdateAvatarView, UpdateFactoryView, RegisterFactoryView, CreateProductView, ColorVariationCreateView, FactoryProductsView, ProductDetailView, ProductDeleteView, UpdateProductView, ColorVariationUpdateView
 from .shared_views.stock_update import UpdateProductStockView
 from .shared_views.store_category import CreateStoreCategoryView, StoreCategoryUpdateDeleteView
 from .shared_views.get_my_percentage import GetMyPercentage
 from .shared_views.register_box import RegisterBoxView
 from .shared_views.promotions import PromotionApplicationCreateView, PromotionListView, PromotionProductsView, RemoveProductFromPromotionView
 from .shared_views.subscribe import SubscriptionViewSet, get_suppliers_info
+from .shared_views.feed import LatestProductsView
 
 from django.conf import settings
 from django.conf.urls.static import static
@@ -77,5 +78,6 @@ urlpatterns = [
     path('subscriptions/my/', subscription_list_view, name='subscription-list'),
     path('subscriptions/unsubscribe/',
          subscription_unsubscribe_view, name='subscription-unsubscribe'),
-     path('get_suppliers_info/', get_suppliers_info)
+    path('get_suppliers_info/', get_suppliers_info),
+    path('latest-products/', LatestProductsView.as_view(), name='latest-products'),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
