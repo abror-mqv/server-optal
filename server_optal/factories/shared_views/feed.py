@@ -22,4 +22,3 @@ class LatestProductsView(APIView):
 
         serializer = ProductSerializer(paginated_products, many=True)
         return paginator.get_paginated_response(serializer.data)
-

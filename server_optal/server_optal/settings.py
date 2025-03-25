@@ -29,7 +29,15 @@ INSTALLED_APPS = [
     'customers',
     'rest_framework',
     'colorfield',
+    'haystack'
 ]
+
+HAYSTACK_CONNECTIONS = {
+    'default': {
+        'ENGINE': 'haystack.backends.whoosh_backend.WhooshEngine',
+        'PATH': os.path.join(BASE_DIR, 'whoosh_index'),  # Путь для индексации данных
+    },
+}
 
 ALLOWED_HOSTS = ['192.168.133.88', 'localhost',
                  '127.0.0.1', "localhost:3000", "5.59.233.26", "imacode.ru", "192.168.243.88", "optal.ru", "imacode.ru", "http://5.59.233.26", "http://optal.ru"]
@@ -91,7 +99,9 @@ ROOT_URLCONF = 'server_optal.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [
+            BASE_DIR / 'templates', 
+        ],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [

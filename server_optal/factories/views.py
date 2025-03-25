@@ -264,7 +264,7 @@ class GetOneProduct(APIView):
             # "manufacter_id": product.manufacter.id if product.manufacter else None,
             "manufacter": {
                 "factory_name": product.manufacter.factory_name,
-                "factory_avatar": request.build_absolute_uri(avatar.url) if avatar else None, 
+                "factory_avatar": request.build_absolute_uri(avatar.url) if avatar else None,
                 "factory_id": product.manufacter.id,
                 "factory_description": product.manufacter.factory_description,
                 "supplier_id": product.manufacter.supplier_id

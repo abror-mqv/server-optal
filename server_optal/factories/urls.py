@@ -1,6 +1,6 @@
 from django.urls import path
 
-from .views import CatApiView, FactoryProductsView, FactoryProductsViewBoxViewD, ColorVariationUpdateImageView, ColorVariationDeleteView, FactoryDetailView, LoginFactoryView, GetOneProduct, SubCategoryDetailView, CategoryDetailView, UpdateAvatarView, UpdateFactoryView, RegisterFactoryView, CreateProductView, ColorVariationCreateView, FactoryProductsView, ProductDetailView, ProductDeleteView, UpdateProductView, ColorVariationUpdateView
+from .views import CatApiView, FactoryProductsView, FactoryProductsViewBoxViewD, ColorVariationUpdateImageView, ColorVariationDeleteView, FactoryDetailView, LoginFactoryView, GetOneProduct, UpdateAvatarView, UpdateFactoryView, RegisterFactoryView, CreateProductView, ColorVariationCreateView, FactoryProductsView, ProductDetailView, ProductDeleteView, UpdateProductView, ColorVariationUpdateView
 from .shared_views.stock_update import UpdateProductStockView
 from .shared_views.store_category import CreateStoreCategoryView, StoreCategoryUpdateDeleteView
 from .shared_views.get_my_percentage import GetMyPercentage
@@ -8,6 +8,8 @@ from .shared_views.register_box import RegisterBoxView
 from .shared_views.promotions import PromotionApplicationCreateView, PromotionListView, PromotionProductsView, RemoveProductFromPromotionView
 from .shared_views.subscribe import SubscriptionViewSet, get_suppliers_info
 from .shared_views.feed import LatestProductsView
+from .shared_views.category_feed import CategoryDetailView, SubCategoryDetailView
+from .shared_views.search import search_view
 
 from django.conf import settings
 from django.conf.urls.static import static
@@ -45,8 +47,8 @@ urlpatterns = [
          ProductDeleteView.as_view(), name='delete-product'),
     path('factory/update/', UpdateFactoryView.as_view(), name='update-factory'),
     path('factory/update-avatar/', UpdateAvatarView.as_view(), name='update_avatar'),
-    path('category/<int:category_id>/',
-         CategoryDetailView.as_view(), name='category-detail'),
+    #     path('category/<int:category_id>/',
+    #          CategoryDetailView.as_view(), name='category-detail'),
     path('latest-products/', LatestProductsView.as_view(), name='latest-products'),
     path('subcategory/<int:subcategory_id>/',
          SubCategoryDetailView.as_view(), name='subcategory-detail'),
@@ -80,4 +82,7 @@ urlpatterns = [
          subscription_unsubscribe_view, name='subscription-unsubscribe'),
     path('get_suppliers_info/', get_suppliers_info),
     path('latest-products/', LatestProductsView.as_view(), name='latest-products'),
+    path('category/<int:category_id>/',
+         CategoryDetailView.as_view(), name='category-detail'),
+    path('search/', search_view, name='search'),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
