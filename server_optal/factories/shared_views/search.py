@@ -3,42 +3,40 @@ from haystack.query import SearchQuerySet
 from ..models import Product, FactoryProfile
 from ..serializers import ProductSerializer
 from rest_framework.response import Response
+from urllib.parse import unquote
 
 
 def search_view(request):
     query = request.GET.get('query', '').strip()
+    query = unquote(query)
 
-    # Поиск по товарам с использованием Django-Haystack
-    products = SearchQuerySet().filter(content=query)
+    # Поиск по товарам
+    products = SearchQuerySet().models(Product).filter(content=query)
+    has_matched_products = products.count() > 0
+
+    if has_matched_products:
+        product_ids = [result.pk for result in products]
+        matched_products = Product.objects.filter(id__in=product_ids)
+    else:
+        matched_products = Product.objects.none()
 
     # Поиск по боксам
     boxes = FactoryProfile.objects.filter(factory_name__icontains=query)
+    has_matched_boxes = boxes.exists()
 
-    # Если нет точных совпадений, возвращаем случайные товары и боксы
-    if not products:
-        products = Product.objects.all().order_by('?')[:10]
-    if not boxes:
-        boxes = FactoryProfile.objects.all().order_by('?')[:2]
+    if not has_matched_boxes:
+        boxes = FactoryProfile.objects.none()
 
-    # Сериализация товаров с учетом цветовых вариаций
-    product_data = []
-    for product in products:
-        # Сериализация каждого продукта
-        serializer = ProductSerializer(product)
-        product_data.append(serializer.data)
+    # 10 случайных товаров для рекомендаций
+    random_products = Product.objects.order_by('?')[:10]
 
-    # Сериализация боксов
-    box_data = []
-    for box in boxes:
-        box_data.append({
-            'id': box.id,
-            'factory_name': box.factory_name,
-        })
-
-    # Возвращаем JSON-ответ
+    # Формируем ответ
     response_data = {
-        'products': product_data,
-        'boxes': box_data,
+        'has_matched_products': has_matched_products,
+        'has_matched_boxes': has_matched_boxes,
+        'matched_boxes': [{'id': box.id, 'factory_name': box.factory_name} for box in boxes] if has_matched_boxes else [],
+        'matched_products': ProductSerializer(matched_products, many=True).data if has_matched_products else [],
+        'random_products': ProductSerializer(random_products, many=True).data
     }
 
     return JsonResponse(response_data)

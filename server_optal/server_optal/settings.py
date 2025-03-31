@@ -35,9 +35,12 @@ INSTALLED_APPS = [
 HAYSTACK_CONNECTIONS = {
     'default': {
         'ENGINE': 'haystack.backends.whoosh_backend.WhooshEngine',
-        'PATH': os.path.join(BASE_DIR, 'whoosh_index'),  # Путь для индексации данных
+        'PATH': os.path.join(BASE_DIR, 'whoosh_index'),
+        'INCLUDE_SPELLING': True,
+        'STORAGE': 'file',
     },
 }
+
 
 ALLOWED_HOSTS = ['192.168.133.88', 'localhost',
                  '127.0.0.1', "localhost:3000", "5.59.233.26", "imacode.ru", "192.168.243.88", "optal.ru", "imacode.ru", "http://5.59.233.26", "http://optal.ru"]
