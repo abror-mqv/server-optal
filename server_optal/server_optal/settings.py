@@ -29,7 +29,7 @@ INSTALLED_APPS = [
     'customers',
     'rest_framework',
     'colorfield',
-    'haystack'
+    # 'haystack'
 ]
 
 HAYSTACK_CONNECTIONS = {
@@ -42,29 +42,49 @@ HAYSTACK_CONNECTIONS = {
 }
 
 
-ALLOWED_HOSTS = ['192.168.133.88', 'localhost',
-                 '127.0.0.1', "localhost:3000", "5.59.233.26", "imacode.ru", "192.168.243.88", "optal.ru", "imacode.ru", "http://5.59.233.26", "http://optal.ru"]
+ALLOWED_HOSTS = [
+    'localhost',
+    '127.0.0.1',
+    '192.168.133.88',
+    '192.168.243.88',
+    'localhost:3000',
+    '127.0.0.1:3000',
+    '5.59.233.26',
+    'optal.ru',
+    'imacode.ru',
+    'http://5.59.233.26',
+    'http://optal.ru',
+    'https://optal.vercel.app/'
+    "http://176.126.164.86"
+]
+
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
+    "http://127.0.0.1:3000",
     "http://5.59.233.26",
     "http://optal.ru",
     "https://localhost:3000",
     "https://5.59.233.26",
     "https://optal.ru",
-    "http://localhost:3000"
+    "https://optal.vercel.app/"
+
 ]
 
-CSRF_TRUSTED_ORIGINS = ['https://optal.ru']
+CSRF_TRUSTED_ORIGINS = [
+    'http://localhost:3000',
+    'http://127.0.0.1:3000',
+    'http://127.0.0.1:8000',
+    'https://optal.ru',
+    "https://optal.vercel.app/"
+]
 
-CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOW_ALL_ORIGINS = False
+CORS_ALLOW_CREDENTIALS = True
 
-# SESSION_COOKIE_SECURE = True
-# CSRF_COOKIE_SECURE = True
-# SECURE_SSL_REDIRECT = True
+# Allow standard headers for fetch/AJAX preflight plus CSRF token
+from corsheaders.defaults import default_headers
 
-CORS_ALLOW_HEADERS = [
-    'authorization',
-    'content-type',
+CORS_ALLOW_HEADERS = list(default_headers) + [
     'x-csrftoken',
 ]
 
@@ -174,3 +194,5 @@ STATICFILES_DIRS = [
 
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
