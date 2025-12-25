@@ -83,9 +83,7 @@ CSRF_TRUSTED_ORIGINS = [
     "https://optal.vercel.app",
     "http://176.126.164.86",
     "http://176.126.164.86:1337",
-    '176.126.164.86:1337',
-    '176.126.164.86',
-    '176-126-164-86.sslip.io'
+    "https://176-126-164-86.sslip.io"
 ]
 
 CORS_ALLOW_ALL_ORIGINS = False
