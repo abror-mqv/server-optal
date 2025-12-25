@@ -70,7 +70,8 @@ CORS_ALLOWED_ORIGINS = [
     "https://localhost:3000",
     "https://5.59.233.26",
     "https://optal.ru",
-    "https://optal.vercel.app"
+    "https://optal.vercel.app",
+    'https://176-126-164-86.sslip.io'
 
 ]
 
@@ -80,7 +81,11 @@ CSRF_TRUSTED_ORIGINS = [
     'http://127.0.0.1:8000',
     'https://optal.ru',
     "https://optal.vercel.app",
-    "http://176.126.164.86"
+    "http://176.126.164.86",
+    "http://176.126.164.86:1337",
+    '176.126.164.86:1337',
+    '176.126.164.86',
+    '176-126-164-86.sslip.io'
 ]
 
 CORS_ALLOW_ALL_ORIGINS = False
